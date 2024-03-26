@@ -1,3 +1,8 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿namespace IPK_Project1;
 
-Console.WriteLine("Hello, World!");
+static class Program {
+	static void Main(string[] args) {
+		CliArguments cliArguments = Cli.Parse(args);
+		
+	}
+}
