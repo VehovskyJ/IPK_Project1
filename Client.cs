@@ -12,7 +12,7 @@ public class Client {
 			// Connect to the server
 			_client.Connect(server, port);
 		} catch (Exception e) {
-			Console.WriteLine($"Error connecting to the server: {e.Message}");
+			Error.Print($"Error connecting to the server: {e.Message}");
 			return;
 		}
 
@@ -44,7 +44,7 @@ public class Client {
 			}
 
 		} catch (Exception e) {
-			Console.WriteLine(e);
+			Error.Print(e.Message);
 		}
 	}
 

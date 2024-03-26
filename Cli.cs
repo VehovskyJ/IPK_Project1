@@ -21,7 +21,7 @@ public class Cli {
 		for (int i = 0; i < args.Length; i++) {
 			// Check if there is a value for the argument
 			if (i + i > args.Length) {
-				Console.WriteLine("Error: Missing value for argument.");
+				Error.Print("Missing value for argument.");
 				Environment.Exit(1);
 			}
 			
@@ -35,7 +35,7 @@ public class Cli {
 							cliArguments.TransportProtocol = TransportProtocol.Udp;
 							break;
 						default:
-							Console.WriteLine("Error: Invalid transport protocol.");
+							Error.Print("Missing value for argument.");
 							Environment.Exit(1);
 							break;
 					}
@@ -47,10 +47,10 @@ public class Cli {
 					try {
 						cliArguments.ServerPort = ushort.Parse(args[++i]);
 					} catch (FormatException) {
-						Console.WriteLine("Error: Invalid format for server port.");
+						Error.Print("Invalid format for server port.");
 						Environment.Exit(1);
 					} catch (OverflowException) {
-						Console.WriteLine("Error: Server port must be between 0 and 65535.");
+						Error.Print("Server port must be between 0 and 65535.");
 						Environment.Exit(1);
 					}
 
@@ -59,7 +59,7 @@ public class Cli {
 					try {
 						cliArguments.UdpTimeout = ushort.Parse(args[++i]);
 					} catch (Exception) {
-						Console.WriteLine("Error: Invalid input for UDP timeout.");
+						Error.Print("Invalid input for UDP timeout.");
 						Environment.Exit(1);
 					}
 					break;
@@ -67,7 +67,7 @@ public class Cli {
 					try {					
 						cliArguments.MaxRetransmissions = byte.Parse(args[++i]);
 					} catch (Exception) {
-						Console.WriteLine("Error: Invalid input for UDP retransmissions.");
+						Error.Print("Invalid input for UDP retransmissions.");
 						Environment.Exit(1);
 					}
 					break;
@@ -80,7 +80,7 @@ public class Cli {
 
 		// Check if all required arguments are set
 		if (string.IsNullOrEmpty(cliArguments.ServerAddress) || cliArguments.TransportProtocol == TransportProtocol.None) {
-			Console.WriteLine("Error: Missing required arguments.");
+			Error.Print("Missing required arguments.");
 			Environment.Exit(1);
 		}
 		

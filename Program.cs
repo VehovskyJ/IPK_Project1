@@ -19,7 +19,7 @@ static class Program {
 					tcpClient.SendTcpData(Encoding.ASCII.GetBytes(message));
 				}
 			} catch (Exception e) {
-				Console.WriteLine(e);
+				Error.Print(e.Message);
 			} finally {
 				tcpClient.CloseTcp();
 			}
