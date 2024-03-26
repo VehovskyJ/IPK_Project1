@@ -5,4 +5,6 @@ namespace IPK_Project1.Messages;
 public class Message {
 	public required MessageType Type { get; set; }
 	public required UInt16 MessageId { get; set; }
+	public abstract string CreateTcpMessage();
+	public abstract byte[] CreateUdpMessage();
 }
