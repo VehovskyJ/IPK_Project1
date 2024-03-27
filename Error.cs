@@ -1,3 +1,5 @@
+using System;
+
 namespace IPK_Project1;
 
 public class Error {
