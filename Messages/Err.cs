@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using IPK_Project1.Enums;
 
 namespace IPK_Project1.Messages;
@@ -9,6 +10,7 @@ public class Err : Msg {
 
 	public Err(MessageType type, ushort messageId, string displayName, string messageContents) : base(type, messageId, displayName, messageContents) { }
 	
+	// Print message to console
 	public new void PrintMessage() {
 		Console.Error.WriteLine($"ERR FROM {DisplayName}: {MessageContents}");
 	}
@@ -19,6 +21,25 @@ public class Err : Msg {
 	}
 
 	public override byte[] CreateUdpMessage() {
+		// TODO: Implement
+		throw new NotImplementedException();
+	}
+	
+	public override void DeserializeTcpMessage(string message) {
+		// ERR FROM {DisplayName} IS {MessageContent}\r\n
+		string pattern = @"^ERR FROM (?<DisplayName>\S+) IS (?<MessageContent>.+)$";
+		Match match = Regex.Match(message, pattern);
+		
+		if (!match.Success) {
+			throw new ArgumentException("Invalid message format");
+		}
+		
+		DisplayName = match.Groups["DisplayName"].Value;
+		MessageContents = match.Groups["MessageContent"].Value;
+	}
+
+	public override void DeserializeUdpMessage(byte[] message) {
+		// TODO: Implement
 		throw new NotImplementedException();
 	}
 }

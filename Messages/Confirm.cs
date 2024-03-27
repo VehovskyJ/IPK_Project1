@@ -15,11 +15,23 @@ public class Confirm : Message {
 		Ref_MesssageID = refMesssageId;
 	}
 
+	// Method is not implemented in TCP
 	public override string CreateTcpMessage() {
 		throw new NotImplementedException();
 	}
 
 	public override byte[] CreateUdpMessage() {
+		// TODO: Implement
+		throw new NotImplementedException();
+	}
+
+	// Method is not implemented in TCP
+	public override void DeserializeTcpMessage(string message) {
+		throw new NotImplementedException();
+	}
+
+	public override void DeserializeUdpMessage(byte[] message) {
+		// TODO: Implement
 		throw new NotImplementedException();
 	}
 }

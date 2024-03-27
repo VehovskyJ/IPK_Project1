@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using IPK_Project1.Enums;
 
 namespace IPK_Project1.Messages;
@@ -46,6 +47,25 @@ public class Join : Message {
 	}
 
 	public override byte[] CreateUdpMessage() {
+		// TODO: Implement UDP message serialization
+		throw new NotImplementedException();
+	}
+
+	public override void DeserializeTcpMessage(string message) {
+		// JOIN {ChannelID} AS {DisplayName}\r\n
+		string pattern = @"^JOIN (?<ChannelID>\S+) AS (?<DisplayName>\S+)$";
+		var match = Regex.Match(message, pattern);
+
+		if (!match.Success) {
+			throw new ArgumentException("Invalid message format");
+		}
+		
+		ChannelID = match.Groups["ChannelID"].Value;
+		DisplayName = match.Groups["DisplayName"].Value;
+	}
+
+	public override void DeserializeUdpMessage(byte[] message) {
+		// TODO: Implement UDP message deserialization
 		throw new NotImplementedException();
 	}
 }

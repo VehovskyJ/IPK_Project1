@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using IPK_Project1.Enums;
 
 namespace IPK_Project1.Messages;
@@ -40,6 +41,7 @@ public class Msg : Message {
 		MessageContents = messageContents;
 	}
 
+	// Print message to console
 	public void PrintMessage() {
 		Console.WriteLine($"{DisplayName}: {MessageContents}");
 	}
@@ -50,6 +52,23 @@ public class Msg : Message {
 	}
 
 	public override byte[] CreateUdpMessage() {
+		throw new NotImplementedException();
+	}
+
+	public override void DeserializeTcpMessage(string message) {
+		// MSG FROM {DisplayName} IS {MessageContent}\r\n
+		string pattern = @"^MSG FROM (?<DisplayName>\S+) IS (?<MessageContent>.+)$";
+		var match = Regex.Match(message, pattern);
+
+		if (!match.Success) {
+			throw new ArgumentException("Invalid message format");
+		}
+		
+		DisplayName = match.Groups["DisplayName"].Value;
+		MessageContents = match.Groups["MessageContent"].Value;
+	}
+
+	public override void DeserializeUdpMessage(byte[] message) {
 		throw new NotImplementedException();
 	}
 }

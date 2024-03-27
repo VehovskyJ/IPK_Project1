@@ -59,7 +59,18 @@ public class Auth : Message {
 		return $"AUTH {Username} AS {DisplayName} USING {Secret}\r\n";
 	}
 
+	// Auth method is not used in UDP
 	public override byte[] CreateUdpMessage() {
+		throw new NotImplementedException();
+	}
+
+	// Auth message is not received
+	public override void DeserializeTcpMessage(string message) {
+		throw new NotImplementedException();
+	}
+
+	// Auth message is not received
+	public override void DeserializeUdpMessage(byte[] message) {
 		throw new NotImplementedException();
 	}
 }
