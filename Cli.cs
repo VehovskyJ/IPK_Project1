@@ -1,4 +1,5 @@
 using IPK_Project1.Enums;
+using IPK_Project1.Messages;
 
 namespace IPK_Project1;
 
@@ -24,7 +25,7 @@ public class Cli {
 				Error.Print("Missing value for argument.");
 				Environment.Exit(1);
 			}
-			
+
 			switch (args[i]) {
 				case "-t":
 					switch (args[++i]) {
@@ -39,6 +40,7 @@ public class Cli {
 							Environment.Exit(1);
 							break;
 					}
+
 					break;
 				case "-s":
 					cliArguments.ServerAddress = args[++i];
@@ -62,14 +64,16 @@ public class Cli {
 						Error.Print("Invalid input for UDP timeout.");
 						Environment.Exit(1);
 					}
+
 					break;
 				case "-r":
-					try {					
+					try {
 						cliArguments.MaxRetransmissions = byte.Parse(args[++i]);
 					} catch (Exception) {
 						Error.Print("Invalid input for UDP retransmissions.");
 						Environment.Exit(1);
 					}
+
 					break;
 				default:
 					Help();
@@ -79,11 +83,12 @@ public class Cli {
 		}
 
 		// Check if all required arguments are set
-		if (string.IsNullOrEmpty(cliArguments.ServerAddress) || cliArguments.TransportProtocol == TransportProtocol.None) {
+		if (string.IsNullOrEmpty(cliArguments.ServerAddress) ||
+		    cliArguments.TransportProtocol == TransportProtocol.None) {
 			Error.Print("Missing required arguments.");
 			Environment.Exit(1);
 		}
-		
+
 		return cliArguments;
 	}
 

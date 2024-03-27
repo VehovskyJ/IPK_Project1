@@ -26,6 +26,6 @@ static class Program {
 		} else {
 			// TODO: Implement UDP client
 		}
-		
 	}
 }
+// TODO: return codes on exit

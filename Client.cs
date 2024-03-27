@@ -5,7 +5,7 @@ namespace IPK_Project1;
 
 public class Client {
 	private TcpClient _client = new TcpClient();
-	
+
 	// Run the TCP client
 	public void RunTcp(string server, ushort port) {
 		try {
@@ -25,7 +25,7 @@ public class Client {
 	public void CloseTcp() {
 		_client.Close();
 	}
-	
+
 	// Receive data from the server
 	// This method does not further process the data
 	private void ReceiveTcpData() {
@@ -42,7 +42,6 @@ public class Client {
 					Console.Write(receivedMessage);
 				}
 			}
-
 		} catch (Exception e) {
 			Error.Print(e.Message);
 		}
@@ -53,5 +52,4 @@ public class Client {
 		NetworkStream stream = _client.GetStream();
 		stream.Write(data, 0, data.Length);
 	}
-	
 }
