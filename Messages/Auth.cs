@@ -1,3 +1,5 @@
+using IPK_Project1.Enums;
+
 namespace IPK_Project1.Messages;
 
 public class Auth : Message {
@@ -37,6 +39,21 @@ public class Auth : Message {
 			_secret = value;
 		} 
 	}
+
+	public Auth() { }
+
+	public Auth(string username, string displayName, string secret) {
+		Username = username;
+		DisplayName = displayName;
+		Secret = secret;
+	}
+	
+	public Auth(MessageType type, ushort messageId, string username, string displayName, string secret) : base(type, messageId) {
+		Username = username;
+		DisplayName = displayName;
+		Secret = secret;
+	}
+
 	public override string CreateTcpMessage() {
 		// AUTH {Username} AS {DisplayName} USING {Secret}\r\n
 		return $"AUTH {Username} AS {DisplayName} USING {Secret}\r\n";

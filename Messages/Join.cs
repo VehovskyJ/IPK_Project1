@@ -1,3 +1,5 @@
+using IPK_Project1.Enums;
+
 namespace IPK_Project1.Messages;
 
 public class Join : Message {
@@ -25,6 +27,19 @@ public class Join : Message {
 			_displayName = value;	
 		}
 	}
+
+	public Join() { }
+
+	public Join(string channelId, string displayName) {
+		ChannelID = channelId;
+		DisplayName = displayName;
+	}
+	
+	public Join(MessageType type, ushort messageId, string channelId, string displayName) : base(type, messageId) {
+		ChannelID = channelId;
+		DisplayName = displayName;
+	}
+
 	public override string CreateTcpMessage() {
 		// JOIN {ChannelID} AS {DisplayName}\r\n
 		return $"JOIN {ChannelID} AS {DisplayName}\r\n";

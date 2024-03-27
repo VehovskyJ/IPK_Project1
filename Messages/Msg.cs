@@ -1,3 +1,5 @@
+using IPK_Project1.Enums;
+
 namespace IPK_Project1.Messages;
 
 public class Msg : Message {
@@ -25,6 +27,19 @@ public class Msg : Message {
 			_messageContents = value;	
 		}
 	}
+
+	public Msg() { }
+
+	public Msg(string displayName, string messageContents) {
+		DisplayName = displayName;
+		MessageContents = messageContents;
+	}
+	
+	public Msg(MessageType type, ushort messageId, string displayName, string messageContents) : base(type, messageId) {
+		DisplayName = displayName;
+		MessageContents = messageContents;
+	}
+
 	public void PrintMessage() {
 		Console.WriteLine($"{DisplayName}: {MessageContents}");
 	}

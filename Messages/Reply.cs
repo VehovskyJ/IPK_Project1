@@ -1,3 +1,5 @@
+using IPK_Project1.Enums;
+
 namespace IPK_Project1.Messages;
 
 public class Reply : Message {
@@ -15,6 +17,21 @@ public class Reply : Message {
 			_messageContents = value;	
 		}
 	}
+
+	public Reply() { }
+
+	public Reply(bool result, ushort refMessageId, string messageContents) {
+		Result = result;
+		Ref_MessageID = refMessageId;
+		MessageContents = messageContents;
+	}
+	
+	public Reply(MessageType type, ushort messageId, bool result, ushort refMessageId, string messageContents) : base(type, messageId) {
+		Result = result;
+		Ref_MessageID = refMessageId;
+		MessageContents = messageContents;
+	}
+
 	public void PrintMessage() {
 		Console.Error.WriteLine($"{(Result ? "Success" : "Failure")}: {MessageContents}");
 	}

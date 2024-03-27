@@ -6,6 +6,14 @@ namespace IPK_Project1.Messages;
 public abstract class Message : IPrepareForSending {
 	public required MessageType Type { get; set; }
 	public required UInt16 MessageId { get; set; }
+
+	protected Message() { }
+
+	protected Message(MessageType type, ushort messageId) {
+		Type = type;
+		MessageId = messageId;
+	}
+
 	public abstract string CreateTcpMessage();
 	public abstract byte[] CreateUdpMessage();
 
