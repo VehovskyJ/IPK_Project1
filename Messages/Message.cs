@@ -3,7 +3,7 @@ using IPK_Project1.Enums;
 
 namespace IPK_Project1.Messages;
 
-public abstract class Message : IPrepareForSending {
+public abstract class Message : ISerializeMessage {
 	public required MessageType Type { get; set; }
 	public required UInt16 MessageId { get; set; }
 
