@@ -22,39 +22,23 @@ public abstract class Message : ISerializeMessage, IDeserializeMessage {
 	public abstract void DeserializeUdpMessage(byte[] message);
 
 	// The following methods check the input for invalid characters or length
-	protected bool CheckMessageContents(string value) {
+	protected static bool CheckMessageContents(string value) {
 		// MessageContents should be at most 1400 characters long and contain only printable characters
-		if (value.Length > 1400 || value.Any(char.IsControl)) {
-			return false;
-		}
-
-		return true;
+		return value.Length <= 1400 && !value.Any(char.IsControl);
 	}
 	
-	protected bool CheckDisplayName(string value) {
+	protected static bool CheckDisplayName(string value) {
 		// DisplayName should be at most 20 characters long and contain only printable characters
-		if (value.Length > 20 || value.Any(char.IsControl)) {
-			return false;
-		}
-
-		return true;
+		return value.Length <= 20 && !value.Any(char.IsControl);
 	}
 	
-	protected bool CheckUsernameOrChannelID(string value) {
+	protected static bool CheckUsernameOrChannelId(string value) {
 		// Username should be at most 20 characters long and contain only characters [A-Za-z0-9-]
-		if (value.Length > 20 || !Regex.IsMatch(value, @"^[A-Za-z0-9-]+$")) {
-			return false;
-		}
-
-		return true;
+		return value.Length <= 20 && Regex.IsMatch(value, @"^[A-Za-z0-9-]+$");
 	}
 	
-	protected bool CheckSecret(string value) {
+	protected static bool CheckSecret(string value) {
 		// Secret should be at most 128 characters long and contain only characters [A-Za-z0-9-]
-		if (value.Length > 128 || !Regex.IsMatch(value, @"^[A-Za-z0-9-]+$")) {
-			return false;
-		}
-
-		return true;
+		return value.Length <= 128 && Regex.IsMatch(value, @"^[A-Za-z0-9-]+$");
 	}
 }
