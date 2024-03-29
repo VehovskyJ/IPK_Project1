@@ -5,8 +5,8 @@ using IPK_Project1.Enums;
 namespace IPK_Project1.Messages;
 
 public class Join : Message {
-	private string _channelID;
-	private string _displayName;
+	private string _channelId = string.Empty;
+	private string _displayName = String.Empty;
 	
 	public required string ChannelID {
 		get => _channelID;

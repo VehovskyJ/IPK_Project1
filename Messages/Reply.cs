@@ -7,7 +7,7 @@ namespace IPK_Project1.Messages;
 public class Reply : Message {
 	public required bool Result { get; set; }
 	public required UInt16 Ref_MessageID { get; set; }
-	private string _messageContents;
+	private string _messageContents = String.Empty;
 
 	public required string MessageContents {
 		get => _messageContents;

@@ -5,8 +5,8 @@ using IPK_Project1.Enums;
 namespace IPK_Project1.Messages;
 
 public class Msg : Message {
-	private string _displayName;
-	private string _messageContents;
+	private string _displayName = string.Empty;
+	private string _messageContents = string.Empty;
 
 	public required string DisplayName {
 		get => _displayName;
