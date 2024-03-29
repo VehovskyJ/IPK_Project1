@@ -1,4 +1,4 @@
-namespace IPK_Project1.Messages;
+namespace IPK_Project1.Interfaces;
 
 public interface IDeserializeMessage {
 	// DeserializeTcpMessage parses a message from a string

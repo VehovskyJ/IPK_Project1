@@ -58,7 +58,7 @@ public class Msg : Message {
 
 	public override void DeserializeTcpMessage(string message) {
 		// MSG FROM {DisplayName} IS {MessageContent}\r\n
-		string pattern = @"^MSG FROM (?<DisplayName>\S+) IS (?<MessageContent>.+)$";
+		const string pattern = @"^MSG FROM (?<DisplayName>\S+) IS (?<MessageContent>.+)$";
 		var match = Regex.Match(message, pattern);
 
 		if (!match.Success) {

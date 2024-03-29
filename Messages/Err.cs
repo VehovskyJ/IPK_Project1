@@ -28,7 +28,7 @@ public class Err : Msg {
 	
 	public override void DeserializeTcpMessage(string message) {
 		// ERR FROM {DisplayName} IS {MessageContent}\r\n
-		string pattern = @"^ERR FROM (?<DisplayName>\S+) IS (?<MessageContent>.+)$";
+		const string pattern = @"^ERR FROM (?<DisplayName>\S+) IS (?<MessageContent>.+)$";
 		Match match = Regex.Match(message, pattern);
 		
 		if (!match.Success) {

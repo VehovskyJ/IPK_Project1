@@ -6,7 +6,7 @@ using System.Threading;
 namespace IPK_Project1;
 
 public class Client {
-	private TcpClient _client = new TcpClient();
+	private TcpClient _client = new();
 
 	// Run the TCP client
 	public void RunTcp(string server, ushort port) {
@@ -19,7 +19,7 @@ public class Client {
 		}
 
 		// Create thread for receiving TCP data
-		Thread receive = new Thread(() => ReceiveTcpData());
+		Thread receive = new Thread(ReceiveTcpData);
 		receive.Start();
 	}
 

@@ -54,7 +54,7 @@ public class Join : Message {
 
 	public override void DeserializeTcpMessage(string message) {
 		// JOIN {ChannelID} AS {DisplayName}\r\n
-		string pattern = @"^JOIN (?<ChannelID>\S+) AS (?<DisplayName>\S+)$";
+		const string pattern = @"^JOIN (?<ChannelID>\S+) AS (?<DisplayName>\S+)$";
 		var match = Regex.Match(message, pattern);
 
 		if (!match.Success) {

@@ -2,12 +2,13 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using IPK_Project1.Enums;
+using IPK_Project1.Interfaces;
 
 namespace IPK_Project1.Messages;
 
 public abstract class Message : ISerializeMessage, IDeserializeMessage {
 	public required MessageType Type { get; set; }
-	public required UInt16 MessageId { get; set; }
+	public required ushort MessageId { get; set; }
 
 	protected Message() { }
 
