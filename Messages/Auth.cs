@@ -11,7 +11,7 @@ public class Auth : Message {
 	public required string Username {
 		get => _username;
 		set {
-			if (CheckUsernameOrChannelID(value)) {
+			if (CheckUsernameOrChannelId(value)) {
 				throw new ArgumentException("Username can only contain characters [A-z0-9-] and be 20 characters long");
 			}
 			

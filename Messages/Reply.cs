@@ -6,7 +6,7 @@ namespace IPK_Project1.Messages;
 
 public class Reply : Message {
 	public required bool Result { get; set; }
-	public required UInt16 Ref_MessageID { get; set; }
+	public required ushort RefMessageId { get; set; }
 	private string _messageContents = String.Empty;
 
 	public required string MessageContents {
@@ -24,13 +24,13 @@ public class Reply : Message {
 
 	public Reply(bool result, ushort refMessageId, string messageContents) {
 		Result = result;
-		Ref_MessageID = refMessageId;
+		RefMessageId = refMessageId;
 		MessageContents = messageContents;
 	}
 	
 	public Reply(MessageType type, ushort messageId, bool result, ushort refMessageId, string messageContents) : base(type, messageId) {
 		Result = result;
-		Ref_MessageID = refMessageId;
+		RefMessageId = refMessageId;
 		MessageContents = messageContents;
 	}
 
@@ -51,7 +51,7 @@ public class Reply : Message {
 
 	public override void DeserializeTcpMessage(string message) {
 		// REPLY {"OK"|"NOK"} IS {MessageContent}\r\n
-		string pattern = @"^REPLY (OK|NOK) IS (.*)$";
+		const string pattern = @"^REPLY (OK|NOK) IS (.*)$";
 		var match = Regex.Match(message, pattern);
 		
 		if (!match.Success) {

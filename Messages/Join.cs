@@ -8,14 +8,14 @@ public class Join : Message {
 	private string _channelId = string.Empty;
 	private string _displayName = String.Empty;
 	
-	public required string ChannelID {
-		get => _channelID;
+	public required string ChannelId {
+		get => _channelId;
 		set {
-			if (CheckUsernameOrChannelID(value)) {
+			if (CheckUsernameOrChannelId(value)) {
 				throw new ArgumentException("ChannelID can only contain characters [A-z0-9-] and be 20 characters long");
 			}
 			
-			_channelID = value;	
+			_channelId = value;	
 		}
 	}
 	
@@ -33,18 +33,18 @@ public class Join : Message {
 	public Join() { }
 
 	public Join(string channelId, string displayName) {
-		ChannelID = channelId;
+		ChannelId = channelId;
 		DisplayName = displayName;
 	}
 	
 	public Join(MessageType type, ushort messageId, string channelId, string displayName) : base(type, messageId) {
-		ChannelID = channelId;
+		ChannelId = channelId;
 		DisplayName = displayName;
 	}
 
 	public override string CreateTcpMessage() {
 		// JOIN {ChannelID} AS {DisplayName}\r\n
-		return $"JOIN {ChannelID} AS {DisplayName}\r\n";
+		return $"JOIN {ChannelId} AS {DisplayName}\r\n";
 	}
 
 	public override byte[] CreateUdpMessage() {
@@ -61,7 +61,7 @@ public class Join : Message {
 			throw new ArgumentException("Invalid message format");
 		}
 		
-		ChannelID = match.Groups["ChannelID"].Value;
+		ChannelId = match.Groups["ChannelID"].Value;
 		DisplayName = match.Groups["DisplayName"].Value;
 	}
 
