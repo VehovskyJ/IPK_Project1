@@ -8,7 +8,7 @@ namespace IPK_Project1.Messages;
 
 public abstract class Message : ISerializeMessage, IDeserializeMessage {
 	public required MessageType Type { get; set; }
-	public required ushort MessageId { get; set; }
+	public ushort MessageId { get; set; }
 
 	protected Message() { }
 
