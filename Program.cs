@@ -5,25 +5,25 @@ namespace IPK_Project1;
 
 static class Program {
 	static void Main(string[] args) {
-		CliArguments cliArguments = new();
+		Cli cli = new();
 		try {
-			cliArguments = Cli.Parse(args);
+			cli.Parse(args);
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			Environment.Exit(1);
 		}
 		
-		if (cliArguments.TransportProtocol == TransportProtocol.Tcp) {
+		if (cli.TransportProtocol == TransportProtocol.Tcp) {
 			// Create TCP client
 			Tcp tcp = new Tcp();
-			if (string.IsNullOrEmpty(cliArguments.ServerAddress)) {
+			if (string.IsNullOrEmpty(cli.ServerAddress)) {
 				Error.Print("Missing required arguments: Server Address.");
 				Environment.Exit(1);
 			} else {
 				// Else is not needed, since the program exits on error,
 				// but the warning about possible null persist when else is not present
 				try {
-					tcp.Run(cliArguments.ServerAddress, cliArguments.ServerPort);
+					tcp.Run(cli.ServerAddress, cli.ServerPort);
 				} catch (Exception e) {
 					Error.Print(e.Message);
 					Environment.Exit(1);

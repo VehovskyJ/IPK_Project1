@@ -4,20 +4,26 @@ using IPK_Project1.Enums;
 namespace IPK_Project1;
 
 public class Cli {
+	public TransportProtocol TransportProtocol { get; set; }
+	public string? ServerAddress { get; set; }
+	public ushort ServerPort { get; set; }
+	public ushort UdpTimeout { get; set; }
+	public byte MaxRetransmissions { get; set; }
+
+	public Cli() {
+		// Default values
+		TransportProtocol = TransportProtocol.None;
+		ServerPort = 4567;
+		UdpTimeout = 250;
+		MaxRetransmissions = 3;
+	}
+
 	// Parse command line arguments
-	public static CliArguments Parse(string[] args) {
+	public void Parse(string[] args) {
 		if (args.Length == 0 || args[0] == "-h") {
 			Help();
 			Environment.Exit(0);
 		}
-
-		// Default values for ServerPort, UdpTimeout and MaxRetransmissions
-		CliArguments cliArguments = new CliArguments {
-			TransportProtocol = TransportProtocol.None,
-			ServerPort = 4567,
-			UdpTimeout = 250,
-			MaxRetransmissions = 3
-		};
 
 		for (int i = 0; i < args.Length; i++) {
 			// Check if there is a value for the argument
@@ -30,10 +36,10 @@ public class Cli {
 				case "-t":
 					switch (args[++i]) {
 						case "tcp":
-							cliArguments.TransportProtocol = TransportProtocol.Tcp;
+							TransportProtocol = TransportProtocol.Tcp;
 							break;
 						case "udp":
-							cliArguments.TransportProtocol = TransportProtocol.Udp;
+							TransportProtocol = TransportProtocol.Udp;
 							break;
 						default:
 							Error.Print("Missing value for argument.");
@@ -43,11 +49,11 @@ public class Cli {
 
 					break;
 				case "-s":
-					cliArguments.ServerAddress = args[++i];
+					ServerAddress = args[++i];
 					break;
 				case "-p":
 					try {
-						cliArguments.ServerPort = ushort.Parse(args[++i]);
+						ServerPort = ushort.Parse(args[++i]);
 					} catch (FormatException) {
 						Error.Print("Invalid format for server port.");
 						Environment.Exit(1);
@@ -59,7 +65,7 @@ public class Cli {
 					break;
 				case "-d":
 					try {
-						cliArguments.UdpTimeout = ushort.Parse(args[++i]);
+						UdpTimeout = ushort.Parse(args[++i]);
 					} catch (Exception) {
 						Error.Print("Invalid input for UDP timeout.");
 						Environment.Exit(1);
@@ -68,7 +74,7 @@ public class Cli {
 					break;
 				case "-r":
 					try {
-						cliArguments.MaxRetransmissions = byte.Parse(args[++i]);
+						MaxRetransmissions = byte.Parse(args[++i]);
 					} catch (Exception) {
 						Error.Print("Invalid input for UDP retransmissions.");
 						Environment.Exit(1);
@@ -83,13 +89,10 @@ public class Cli {
 		}
 
 		// Check if all required arguments are set
-		if (string.IsNullOrEmpty(cliArguments.ServerAddress) ||
-		    cliArguments.TransportProtocol == TransportProtocol.None) {
+		if (string.IsNullOrEmpty(ServerAddress) || TransportProtocol == TransportProtocol.None) {
 			Error.Print("Missing required arguments.");
 			Environment.Exit(1);
 		}
-
-		return cliArguments;
 	}
 
 	// Print help message
