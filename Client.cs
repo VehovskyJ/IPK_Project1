@@ -140,6 +140,10 @@ public class Client {
 			// Returns the current display name
 			Console.WriteLine("[" + DisplayName + "]");
 			return;
+		}  else if (message.StartsWith("/getstate")) {
+			// Returns the current display name
+			Console.WriteLine("[" + State + "]");
+			return;
 		} else if (message.StartsWith("/help ")) {
 			PrintHelp();
 			return;
