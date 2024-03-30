@@ -140,23 +140,22 @@ public class Client {
 			PrintHelp();
 			return;
 		} else {
-			// Handle standard message
-			Msg msg = new Msg {
-				Type = MessageType.Msg,
-				DisplayName = DisplayName,
-				MessageContents = message,
-			};
-			
-			try {
-				data = Encoding.ASCII.GetBytes(msg.CreateTcpMessage());
-			} catch (Exception e) {
-				Error.Print(e.Message);
-				return;
-			}
-			
 			// Message can only be sent in open state
 			if (State != State.Open) {
 				Error.Print("Cannot send a message when not connected to the server.");
+				return;
+			}
+			
+			try {
+				Msg msg = new Msg {
+					Type = MessageType.Msg,
+					DisplayName = DisplayName,
+					MessageContents = message,
+				};
+				
+				data = Encoding.ASCII.GetBytes(msg.CreateTcpMessage());
+			} catch (Exception e) {
+				Error.Print(e.Message);
 				return;
 			}
 		}
