@@ -132,6 +132,10 @@ public class Client {
 			}
 
 			return;
+		} else if (message.StartsWith("/getname")) {
+			// Returns the current display name
+			Console.WriteLine("[" + DisplayName + "]");
+			return;
 		} else if (message.StartsWith("/help ")) {
 			PrintHelp();
 			return;
@@ -171,6 +175,8 @@ public class Client {
 		Console.WriteLine("		Sends JOIN command to the server with the provided parameters");
 		Console.WriteLine("/rename {DisplayName}");
 		Console.WriteLine("		Locally changes the display name of the user to be sent with new messages");
+		Console.WriteLine("/getname");
+		Console.WriteLine("		Prints out the current display name");
 		Console.WriteLine("/help");
 		Console.WriteLine("		Prints out supported local commands with their parameters and a description");
 	}
