@@ -3,7 +3,7 @@ using System.Text;
 using IPK_Project1.Enums;
 using IPK_Project1.Messages;
 
-namespace IPK_Project1;
+namespace IPK_Project1.Transport;
 
 public class Tcp : Client {
 	private TcpClient _client = new();

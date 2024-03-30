@@ -1,12 +1,8 @@
-using System;
-using System.Net.Sockets;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using IPK_Project1.Enums;
 using IPK_Project1.Messages;
 
-namespace IPK_Project1;
+namespace IPK_Project1.Transport;
 
 public abstract class Client {
 	protected string DisplayName { get; set; } = string.Empty;
