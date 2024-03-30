@@ -55,7 +55,7 @@ public class Reply : Message {
 
 	public override void DeserializeTcpMessage(string message) {
 		// REPLY {"OK"|"NOK"} IS {MessageContent}\r\n
-		const string pattern = @"^REPLY (OK|NOK) IS (.*)$";
+		const string pattern = @"^REPLY (OK|NOK) IS (.*)(\r\n)$";
 		var match = Regex.Match(message, pattern, RegexOptions.IgnoreCase);
 		
 		if (!match.Success) {

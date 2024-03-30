@@ -16,7 +16,7 @@ public class Bye : Message {
 
 	public override void DeserializeTcpMessage(string message) {
 		// BYE\r\n
-		const string pattern = @"^BYE$";
+		const string pattern = @"^BYE(\r\n)$";
 		var match = Regex.Match(message, pattern, RegexOptions.IgnoreCase);
 
 		if (!match.Success) {
