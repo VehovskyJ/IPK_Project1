@@ -108,13 +108,17 @@ public class Client {
 			State = State.Authenticating;
 		} else if (message.StartsWith("/join ")) {
 			string channelId = ValidateJoinCommand(message);
-			Join join = new Join {
-				Type = MessageType.Join,
-				ChannelId = channelId,
-				DisplayName = DisplayName,
-			};
+			if (string.IsNullOrEmpty(channelId)) {
+				return;
+			}
 			
 			try {
+				Join join = new Join {
+					Type = MessageType.Join,
+					ChannelId = channelId,
+					DisplayName = DisplayName,
+				};
+				
 				data = Encoding.ASCII.GetBytes(join.CreateTcpMessage());
 			} catch (Exception e) {
 				Error.Print(e.Message);
