@@ -8,14 +8,12 @@ using IPK_Project1.Messages;
 
 namespace IPK_Project1;
 
-public class Client {
-	private string DisplayName { get; set; } = string.Empty;
-	private State State { get; set; } = State.Default;
-	
-	private TcpClient _client = new();
+public abstract class Client {
+	protected string DisplayName { get; set; } = string.Empty;
+	protected State State { get; set; } = State.Default;
 	
 	// Struct for the /auth command
-	private struct AuthCommand {
+	protected struct AuthCommand {
 		public string Username;
 		public string Secret;
 		public string DisplayName;
@@ -25,156 +23,20 @@ public class Client {
 		}
 	}
 
-	// Run the TCP client
-	public void RunTcp(string server, ushort port) {
-		try {
-			// Connect to the server
-			_client.Connect(server, port);
-		} catch (Exception e) {
-			Error.Print($"Error connecting to the server: {e.Message}");
-			return;
-		}
+	// Run the client
+	public abstract void Run(string server, ushort port);
 
-		// Create thread for receiving TCP data
-		Thread receive = new Thread(ReceiveTcpData);
-		receive.Start();
-	}
+	// Close the connection
+	public abstract void Close();
 
-	// Close the TCP connection
-	public void CloseTcp() {
-		_client.Close();
-	}
-
-	// Receive data from the server
-	// This method does not further process the data
-	private void ReceiveTcpData() {
-		try {
-			// Read byte stream from the server
-			NetworkStream stream = _client.GetStream();
-			byte[] data = new byte[2048];
-
-			while (true) {
-				int bytesRead = stream.Read(data, 0, data.Length);
-				if (bytesRead > 0) {
-					string receivedMessage = Encoding.ASCII.GetString(data, 0, bytesRead);
-					// TODO: process message
-					Console.Write(receivedMessage);
-				}
-			}
-		} catch (Exception e) {
-			Error.Print(e.Message);
-		}
-	}
-
-	// Send data to the server
-	public void SendTcpData(string message) {
-		byte[] data = Encoding.ASCII.GetBytes(message + "\r\n");
-		// Check if the message is ASCII encoded and replace non ascii characters with '?'
-		StringBuilder stringBuilder = new();
-		foreach (char c in message) {
-			stringBuilder.Append(c <= 127 ? c : '?');
-		}
-
-		message = stringBuilder.ToString();
-
-		// Check if a message is a command
-		if (message.StartsWith("/auth ")) {
-			AuthCommand ac = ValidateAuthCommand(message);
-			if (ac.IsEmpty()) {
-				return;
-			}
-
-			try {
-				Auth auth = new Auth {
-					Type = MessageType.Auth,
-					DisplayName = ac.DisplayName,
-					Secret = ac.Secret,
-					Username = ac.Username,
-				};
-				
-				data = Encoding.ASCII.GetBytes(auth.CreateTcpMessage());
-			} catch (Exception e) {
-				Error.Print(e.Message);
-				return;
-			}
-			
-			// User can only authenticate when in default state
-			if (State != State.Default) {
-				Error.Print("Cannot authenticate at this moment.");
-				return;
-			}
-
-			// Change the state to authenticating
-			State = State.Authenticating;
-		} else if (message.StartsWith("/join ")) {
-			string channelId = ValidateJoinCommand(message);
-			if (string.IsNullOrEmpty(channelId)) {
-				return;
-			}
-			
-			try {
-				Join join = new Join {
-					Type = MessageType.Join,
-					ChannelId = channelId,
-					DisplayName = DisplayName,
-				};
-				
-				data = Encoding.ASCII.GetBytes(join.CreateTcpMessage());
-			} catch (Exception e) {
-				Error.Print(e.Message);
-				return;
-			}
-
-			if (State != State.Open) {
-				Error.Print("Cannot join a channel when not connected to the server.");
-				return;
-			}
-		} else if (message.StartsWith("/rename ")) {
-			string name = ValidateRenameCommand(message);
-			if (!string.IsNullOrEmpty(name)) {
-				DisplayName = name;
-			}
-
-			return;
-		} else if (message.StartsWith("/getname")) {
-			// Returns the current display name
-			Console.WriteLine("[" + DisplayName + "]");
-			return;
-		}  else if (message.StartsWith("/getstate")) {
-			// Returns the current display name
-			Console.WriteLine("[" + State + "]");
-			return;
-		} else if (message.StartsWith("/help ")) {
-			PrintHelp();
-			return;
-		} else {
-			// Message can only be sent in open state
-			if (State != State.Open) {
-				Error.Print("Cannot send a message when not connected to the server.");
-				return;
-			}
-			
-			try {
-				Msg msg = new Msg {
-					Type = MessageType.Msg,
-					DisplayName = DisplayName,
-					MessageContents = message,
-				};
-				
-				data = Encoding.ASCII.GetBytes(msg.CreateTcpMessage());
-			} catch (Exception e) {
-				Error.Print(e.Message);
-				return;
-			}
-		}
-		
-		// Sends the message to the server
-		NetworkStream stream = _client.GetStream();
-		stream.Write(data, 0, data.Length);
-	}
+	// Handles receiving data from the server
+	protected abstract void ReceiveData();
+	
+	// Handles processing and sending the data to the server
+	public abstract void SendData(string message);
 
 	// Print supported local commands
-	private static void PrintHelp() {
+	protected static void PrintHelp() {
 		Console.WriteLine("Supported local commands:");
 		Console.WriteLine("/auth {Username} {Secret} {DisplayName}");
 		Console.WriteLine("		Sends AUTH command to the server with the provided parameters");
@@ -189,7 +51,7 @@ public class Client {
 	}
 
 	// Validates the /rename command, if valid, returns the new display name otherwise returns empty string
-	private static string ValidateRenameCommand(string message) {
+	protected static string ValidateRenameCommand(string message) {
 		var match = Regex.Match(message, @"/rename\s(.{1,20})");
 		string displayName = match.Groups[1].Value;
 		if (Message.CheckDisplayName(displayName)) {
@@ -202,7 +64,7 @@ public class Client {
 	}
 	
 	// Validates the /join command, if valid, returns the channel ID otherwise returns empty string
-	private static string ValidateJoinCommand(string message) {
+	protected static string ValidateJoinCommand(string message) {
 		var match = Regex.Match(message, @"/join\s(.{1,20})");
 		string channelId = match.Groups[1].Value;
 		if (Message.CheckUsernameOrChannelId(channelId)) {
@@ -215,7 +77,7 @@ public class Client {
 	}
 
 	// Validates the /auth command, if valid, returns the AuthCommand otherwise returns empty AuthCommand
-	private static AuthCommand ValidateAuthCommand(string message) {
+	protected static AuthCommand ValidateAuthCommand(string message) {
 		var match = Regex.Match(message, @"/auth\s(.{1,20})\s(.{1,20})\s(.{1,20})");
 		AuthCommand ac = new AuthCommand {
 			Username = match.Groups[1].Value,

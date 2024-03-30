@@ -10,21 +10,21 @@ static class Program {
 
 		if (cliArguments.TransportProtocol == TransportProtocol.Tcp) {
 			// Create TCP client
-			Client tcpClient = new Client();
+			Tcp tcp = new Tcp();
 			if (string.IsNullOrEmpty(cliArguments.ServerAddress)) {
 				Error.Print("Missing required arguments: Server Address.");
 				Environment.Exit(1);
 			} else {
 				// Else is not needed, since the program exits on error,
 				// but the warning about possible null persist when else is not present
-				tcpClient.RunTcp(cliArguments.ServerAddress, cliArguments.ServerPort);
+				tcp.Run(cliArguments.ServerAddress, cliArguments.ServerPort);
 			}
 			// Read data from the console
 			try {
 				while (true) {
 					string? message = Console.ReadLine();
 					if (!string.IsNullOrEmpty(message)) {
-						tcpClient.SendTcpData(message);
+						tcp.SendData(message);
 					} else {
 						Error.Print("Input cannot be empty.");
 					}
@@ -32,7 +32,7 @@ static class Program {
 			} catch (Exception e) {
 				Error.Print(e.Message);
 			} finally {
-				tcpClient.CloseTcp();
+				tcp.Close();
 			}
 		} else {
 			// TODO: Implement UDP client
