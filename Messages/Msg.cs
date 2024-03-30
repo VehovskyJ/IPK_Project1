@@ -48,6 +48,10 @@ public class Msg : Message {
 	}
 
 	public override string CreateTcpMessage() {
+        if (string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(MessageContents)) {
+        	throw new ArgumentException("DisplayName or MessageContents is empty, cannot send TCP message.");
+        }
+        
 		// MSG FROM {DisplayName} IS {MessageContent}\r\n
 		return $"MSG FROM {DisplayName} IS {MessageContents}\r\n";
 	}

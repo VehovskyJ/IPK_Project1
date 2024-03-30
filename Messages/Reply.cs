@@ -40,6 +40,10 @@ public class Reply : Message {
 	}
 
 	public override string CreateTcpMessage() {
+		if (string.IsNullOrEmpty(MessageContents)) {
+			throw new ArgumentException("MessageContents is empty, cannot send TCP message.");
+		}
+		
 		// REPLY {"OK"|"NOK"} IS {MessageContent}\r\n
 		return $"REPLY {(Result ? "OK" : "NOK")} IS {MessageContents}\r\n";
 	}

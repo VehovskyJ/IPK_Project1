@@ -56,6 +56,10 @@ public class Auth : Message {
 	}
 
 	public override string CreateTcpMessage() {
+		if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(Secret)) {
+			throw new ArgumentException("Username, DisplayName or Secret is empty, cannot send TCP message.");
+		}
+		
 		// AUTH {Username} AS {DisplayName} USING {Secret}\r\n
 		return $"AUTH {Username} AS {DisplayName} USING {Secret}\r\n";
 	}

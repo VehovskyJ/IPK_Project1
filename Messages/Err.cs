@@ -17,6 +17,10 @@ public class Err : Msg {
 	}
 
 	public override string CreateTcpMessage() {
+		if (string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(MessageContents)) {
+			throw new ArgumentException("DisplayName or MessageContents is empty, cannot send TCP message.");
+		}
+		
 		// ERR FROM {DisplayName} IS {MessageContent}\r\n
 		return $"ERR FROM {DisplayName} IS {MessageContents}\r\n";
 	}

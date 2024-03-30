@@ -43,6 +43,10 @@ public class Join : Message {
 	}
 
 	public override string CreateTcpMessage() {
+		if (string.IsNullOrEmpty(ChannelId) || string.IsNullOrEmpty(DisplayName)) {
+			throw new ArgumentException("ChannelId or DisplayName is empty, cannot send TCP message.");
+		}
+		
 		// JOIN {ChannelID} AS {DisplayName}\r\n
 		return $"JOIN {ChannelId} AS {DisplayName}\r\n";
 	}
