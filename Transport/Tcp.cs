@@ -123,16 +123,25 @@ public class Tcp : Client {
 	private void ByeOnInvalidMessage(string error) {
 		NetworkStream stream = _client.GetStream();
 		Error.Print("Received invalid message. Closing the connection.");
+
+		Bye bye = new Bye();
+		byte[] data;
+		
+		// In Default state only Bye message can be sent as the DisplayName is not set
+		if (State == State.Default) {
+			data = Encoding.ASCII.GetBytes(bye.CreateTcpMessage());
+			stream.Write(data, 0, data.Length);
+			Environment.Exit(1);
+		}
 		
 		Err err = new Err {
 			Type = MessageType.Err,
 			DisplayName = DisplayName,
 			MessageContents = error,
 		};
-		byte[] data = Encoding.ASCII.GetBytes(err.CreateTcpMessage());
+		data = Encoding.ASCII.GetBytes(err.CreateTcpMessage());
 		stream.Write(data, 0, data.Length);
 		
-		Bye bye = new Bye();
 		data = Encoding.ASCII.GetBytes(bye.CreateTcpMessage());
 		stream.Write(data, 0, data.Length);
 		
