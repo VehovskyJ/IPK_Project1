@@ -1,5 +1,7 @@
+using System;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using IPK_Project1.Enums;
 using IPK_Project1.Messages;
 
@@ -119,15 +121,21 @@ public class Tcp : Client {
 
 	// Sends Err message to the server, closes the connection with Bye and terminates the program
 	private void ByeOnInvalidMessage(string error) {
+		NetworkStream stream = _client.GetStream();
 		Error.Print("Received invalid message. Closing the connection.");
+		
 		Err err = new Err {
 			Type = MessageType.Err,
 			DisplayName = DisplayName,
 			MessageContents = error,
 		};
-		SendData(err.CreateTcpMessage());
+		byte[] data = Encoding.ASCII.GetBytes(err.CreateTcpMessage());
+		stream.Write(data, 0, data.Length);
+		
 		Bye bye = new Bye();
-		SendData(bye.CreateTcpMessage());
+		data = Encoding.ASCII.GetBytes(bye.CreateTcpMessage());
+		stream.Write(data, 0, data.Length);
+		
 		Environment.Exit(1);
 	}
 	
