@@ -9,6 +9,7 @@ namespace IPK_Project1.Transport;
 
 public class Tcp : Client {
 	private TcpClient _client = new();
+	private bool _closed = false;
 	
 	public override void Run(string server, ushort port) {
 		try {
@@ -25,6 +26,7 @@ public class Tcp : Client {
 	}
 
 	public override void Close() {
+		_closed = true;
 		_client.Close();
 	}
 
@@ -35,6 +37,11 @@ public class Tcp : Client {
 			byte[] data = new byte[2048];
 
 			while (true) {
+				// If the client is closed, stop receiving data
+				if (_closed) {
+					return;
+				}
+				
 				int bytesRead = stream.Read(data, 0, data.Length);
 				if (bytesRead > 0) {
 					string receivedMessage = Encoding.ASCII.GetString(data, 0, bytesRead);
