@@ -55,99 +55,120 @@ public class Tcp : Client {
 
 		message = stringBuilder.ToString();
 
-		// Check if a message is a command
-		if (message.StartsWith("/auth ")) {
-			AuthCommand ac = ValidateAuthCommand(message);
-			if (ac.IsEmpty()) {
-				return;
-			}
-
-			try {
-				Auth auth = new Auth {
-					Type = MessageType.Auth,
-					DisplayName = ac.DisplayName,
-					Secret = ac.Secret,
-					Username = ac.Username,
-				};
-				
-				data = Encoding.ASCII.GetBytes(auth.CreateTcpMessage());
-			} catch (Exception e) {
-				Error.Print(e.Message);
-				return;
-			}
-			
-			// User can only authenticate when in default state
-			if (State != State.Default) {
-				Error.Print("Cannot authenticate at this moment.");
-				return;
-			}
-
-			// Change the state to authenticating
-			State = State.Authenticating;
-		} else if (message.StartsWith("/join ")) {
-			string channelId = ValidateJoinCommand(message);
-			if (string.IsNullOrEmpty(channelId)) {
-				return;
-			}
-			
-			try {
-				Join join = new Join {
-					Type = MessageType.Join,
-					ChannelId = channelId,
-					DisplayName = DisplayName,
-				};
-				
-				data = Encoding.ASCII.GetBytes(join.CreateTcpMessage());
-			} catch (Exception e) {
-				Error.Print(e.Message);
-				return;
-			}
-
-			if (State != State.Open) {
-				Error.Print("Cannot join a channel when not connected to the server.");
-				return;
-			}
-		} else if (message.StartsWith("/rename ")) {
-			string name = ValidateRenameCommand(message);
-			if (!string.IsNullOrEmpty(name)) {
-				DisplayName = name;
+		// Check if message is command
+		if (message.StartsWith("/")) {
+			string command = message.Split(' ')[0];
+			if (commandHandlers.TryGetValue(command, out var handler)) {
+				handler(message);
 			}
 
 			return;
-		} else if (message.StartsWith("/getname")) {
-			// Returns the current display name
-			Console.WriteLine("[" + DisplayName + "]");
-			return;
-		}  else if (message.StartsWith("/getstate")) {
-			// Returns the current display name
-			Console.WriteLine("[" + State + "]");
-			return;
-		} else if (message.StartsWith("/help ")) {
-			PrintHelp();
-			return;
-		} else {
-			// Message can only be sent in open state
-			if (State != State.Open) {
-				Error.Print("Cannot send a message when not connected to the server.");
-				return;
-			}
-			
-			try {
-				Msg msg = new Msg {
-					Type = MessageType.Msg,
-					DisplayName = DisplayName,
-					MessageContents = message,
-				};
-				
-				data = Encoding.ASCII.GetBytes(msg.CreateTcpMessage());
-			} catch (Exception e) {
-				Error.Print(e.Message);
-				return;
-			}
 		}
 		
-		// Sends the message to the server
+		// Message is not a command, process as a message
+		// Message can only be sent in open state
+		if (State != State.Open) {
+			Error.Print("Cannot send a message when not connected to the server.");
+			return;
+		}
+		
+		try {
+			Msg msg = new Msg {
+				Type = MessageType.Msg,
+				DisplayName = DisplayName,
+				MessageContents = message,
+			};
+			
+			data = Encoding.ASCII.GetBytes(msg.CreateTcpMessage());
+		} catch (Exception e) {
+			Error.Print(e.Message);
+			return;
+		}
+		
 		NetworkStream stream = _client.GetStream();
 		stream.Write(data, 0, data.Length);
+	}
+
+	// Local command handlers
+	protected override void HandleAuthCommand(string message) {
+		byte[] data;
+		AuthCommand ac = ValidateAuthCommand(message);
+		if (ac.IsEmpty()) {
+			return;
+		}
+
+		try {
+			Auth auth = new Auth {
+				Type = MessageType.Auth,
+				DisplayName = ac.DisplayName,
+				Secret = ac.Secret,
+				Username = ac.Username,
+			};
+				
+			data = Encoding.ASCII.GetBytes(auth.CreateTcpMessage());
+		} catch (Exception e) {
+			Error.Print(e.Message);
+			return;
+		}
+			
+		// User can only authenticate when in default state
+		if (State != State.Default) {
+			Error.Print("Cannot authenticate at this moment.");
+			return;
+		}
+
+		// Change the state to authenticating
+		State = State.Authenticating;
+		
+		NetworkStream stream = _client.GetStream();
+		stream.Write(data, 0, data.Length);
+	}
+
+	protected override void HandleJoinCommand(string message) {
+		byte[] data;
+		string channelId = ValidateJoinCommand(message);
+		if (string.IsNullOrEmpty(channelId)) {
+			return;
+		}
+			
+		try {
+			Join join = new Join {
+				Type = MessageType.Join,
+				ChannelId = channelId,
+				DisplayName = DisplayName,
+			};
+				
+			data = Encoding.ASCII.GetBytes(join.CreateTcpMessage());
+		} catch (Exception e) {
+			Error.Print(e.Message);
+			return;
+		}
+
+		if (State != State.Open) {
+			Error.Print("Cannot join a channel when not connected to the server.");
+			return;
+		}
+		
+		NetworkStream stream = _client.GetStream();
+		stream.Write(data, 0, data.Length);
+	}
+
+	protected override void HandleRenameCommand(string message) {
+		string name = ValidateRenameCommand(message);
+		if (!string.IsNullOrEmpty(name)) {
+			DisplayName = name;
+		}
+	}
+
+	protected override void HandleGetNameCommand(string message) {
+		Console.WriteLine("[" + DisplayName + "]");
+	}
+
+	protected override void HandleGetStateCommand(string message) {
+		Console.WriteLine("[" + State + "]");
+	}
+
+	protected override void HandleHelpCommand(string message) {
+		PrintHelp();
 	}
 }

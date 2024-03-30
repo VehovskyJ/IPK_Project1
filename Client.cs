@@ -22,7 +22,21 @@ public abstract class Client {
 			return string.IsNullOrEmpty(Username) && string.IsNullOrEmpty(Secret) && string.IsNullOrEmpty(DisplayName);
 		}
 	}
+	
+	//Dictionary for the supported local commands
+	protected Dictionary<string, Action<string>> commandHandlers;
 
+	protected Client() {
+		commandHandlers = new() {
+			{"/auth", HandleAuthCommand},
+			{"/join", HandleJoinCommand},
+			{"/rename", HandleRenameCommand},
+			{"/getname",HandleGetNameCommand},
+			{"/getstate",HandleGetStateCommand},
+			{"/help", HandleHelpCommand},
+		};
+	}
+	
 	// Run the client
 	public abstract void Run(string server, ushort port);
 
@@ -35,6 +49,20 @@ public abstract class Client {
 	// Handles processing and sending the data to the server
 	public abstract void SendData(string message);
 
+	// Local command handlers
+	// /auth sends authentication request to the server 
+	protected abstract void HandleAuthCommand(string message);
+	// /join sends join request to the server
+	protected abstract void HandleJoinCommand(string message);
+	// /rename changes the display name of the user
+	protected abstract void HandleRenameCommand(string message);
+	// /getname prints out the current display name
+	protected abstract void HandleGetNameCommand(string message);
+	// /getstate prints out the current state of the client
+	protected abstract void HandleGetStateCommand(string message);
+	// /help prints out supported local commands
+	protected abstract void HandleHelpCommand(string message);
+	
 	// Print supported local commands
 	protected static void PrintHelp() {
 		Console.WriteLine("Supported local commands:");
