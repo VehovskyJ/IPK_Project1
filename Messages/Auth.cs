@@ -4,7 +4,7 @@ using IPK_Project1.Enums;
 namespace IPK_Project1.Messages;
 
 public class Auth : Message {
-	private string _username = String.Empty;
+	private string _username = string.Empty;
 	private string _displayName = string.Empty;
 	private string _secret = string.Empty;
 

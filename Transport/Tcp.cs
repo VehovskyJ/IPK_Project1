@@ -9,7 +9,7 @@ namespace IPK_Project1.Transport;
 
 public class Tcp : Client {
 	private TcpClient _client = new();
-	private bool _closed = false;
+	private bool _closed;
 	
 	public override void Run(string server, ushort port) {
 		try {
@@ -144,7 +144,7 @@ public class Tcp : Client {
 		Err err = new Err {
 			Type = MessageType.Err,
 			DisplayName = DisplayName,
-			MessageContents = error,
+			MessageContents = error
 		};
 		data = Encoding.ASCII.GetBytes(err.CreateTcpMessage());
 		stream.Write(data, 0, data.Length);
@@ -171,9 +171,9 @@ public class Tcp : Client {
 		message = stringBuilder.ToString();
 
 		// Check if message is command
-		if (message.StartsWith("/")) {
+		if (message.StartsWith('/')) {
 			string command = message.Split(' ')[0];
-			if (commandHandlers.TryGetValue(command, out var handler)) {
+			if (CommandHandlers.TryGetValue(command, out var handler)) {
 				handler(message);
 			}
 
@@ -191,7 +191,7 @@ public class Tcp : Client {
 			Msg msg = new Msg {
 				Type = MessageType.Msg,
 				DisplayName = DisplayName,
-				MessageContents = message,
+				MessageContents = message
 			};
 			
 			data = Encoding.ASCII.GetBytes(msg.CreateTcpMessage());
@@ -218,7 +218,7 @@ public class Tcp : Client {
 				Type = MessageType.Auth,
 				DisplayName = ac.DisplayName,
 				Secret = ac.Secret,
-				Username = ac.Username,
+				Username = ac.Username
 			};
 				
 			data = Encoding.ASCII.GetBytes(auth.CreateTcpMessage());
@@ -251,7 +251,7 @@ public class Tcp : Client {
 			Join join = new Join {
 				Type = MessageType.Join,
 				ChannelId = channelId,
-				DisplayName = DisplayName,
+				DisplayName = DisplayName
 			};
 				
 			data = Encoding.ASCII.GetBytes(join.CreateTcpMessage());

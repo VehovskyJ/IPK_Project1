@@ -7,7 +7,7 @@ namespace IPK_Project1.Messages;
 public class Reply : Message {
 	public bool Result { get; set; }
 	public ushort RefMessageId { get; set; }
-	private string _messageContents = String.Empty;
+	private string _messageContents = string.Empty;
 
 	private string MessageContents {
 		get => _messageContents;
@@ -63,11 +63,7 @@ public class Reply : Message {
 		}
 
 		Type = MessageType.Reply;
-		if (match.Groups[1].Value is "OK" or "ok") {
-			Result = true;
-		} else {
-			Result = false;
-		}
+		Result = match.Groups[1].Value is "OK" or "ok";
 		MessageContents = match.Groups[2].Value;
 	}
 

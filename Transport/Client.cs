@@ -22,16 +22,16 @@ public abstract class Client {
 	}
 	
 	//Dictionary for the supported local commands
-	protected Dictionary<string, Action<string>> commandHandlers;
+	protected Dictionary<string, Action<string>> CommandHandlers;
 
 	protected Client() {
-		commandHandlers = new() {
+		CommandHandlers = new Dictionary<string, Action<string>> {
 			{"/auth", HandleAuthCommand},
 			{"/join", HandleJoinCommand},
 			{"/rename", HandleRenameCommand},
 			{"/getname",HandleGetNameCommand},
 			{"/getstate",HandleGetStateCommand},
-			{"/help", HandleHelpCommand},
+			{"/help", HandleHelpCommand}
 		};
 	}
 	
@@ -89,7 +89,7 @@ public abstract class Client {
 
 		Error.Print("Invalid rename command. Use /rename {DisplayName}");
 		Error.Print("{DisplayName} has to contain only printable characters and be between 1 and 20 characters long.");
-		return String.Empty;
+		return string.Empty;
 	}
 	
 	// Validates the /join command, if valid, returns the channel ID otherwise returns empty string
@@ -102,7 +102,7 @@ public abstract class Client {
 
 		Error.Print("Invalid join command. Use /join {ChannelID}");
 		Error.Print("{ChannelID} has to contain only characters [A-z0-9-] and be between 1 and 20 characters long.");
-		return String.Empty;
+		return string.Empty;
 	}
 
 	// Validates the /auth command, if valid, returns the AuthCommand otherwise returns empty AuthCommand
@@ -111,7 +111,7 @@ public abstract class Client {
 		AuthCommand ac = new AuthCommand {
 			Username = match.Groups[1].Value,
 			Secret = match.Groups[2].Value,
-			DisplayName = match.Groups[3].Value,
+			DisplayName = match.Groups[3].Value
 		};
 		if (Message.CheckUsernameOrChannelId(ac.Username) && Message.CheckSecret(ac.Secret) && Message.CheckDisplayName(ac.DisplayName)) {
 			return ac;

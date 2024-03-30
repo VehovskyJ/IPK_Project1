@@ -1,12 +1,11 @@
 using System;
-using System.Text.RegularExpressions;
 using IPK_Project1.Enums;
 
 namespace IPK_Project1.Messages;
 
 public class Join : Message {
 	private string _channelId = string.Empty;
-	private string _displayName = String.Empty;
+	private string _displayName = string.Empty;
 	
 	public required string ChannelId {
 		get => _channelId;
