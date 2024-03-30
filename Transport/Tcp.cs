@@ -46,7 +46,7 @@ public class Tcp : Client {
 	}
 
 	public override void SendData(string message) {
-		byte[] data = Encoding.ASCII.GetBytes(message + "\r\n");
+		byte[] data;
 		// Check if the message is ASCII encoded and replace non ascii characters with '?'
 		StringBuilder stringBuilder = new();
 		foreach (char c in message) {
@@ -96,7 +96,8 @@ public class Tcp : Client {
 		if (ac.IsEmpty()) {
 			return;
 		}
-
+		
+		DisplayName = ac.DisplayName;
 		try {
 			Auth auth = new Auth {
 				Type = MessageType.Auth,
