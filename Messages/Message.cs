@@ -7,7 +7,7 @@ using IPK_Project1.Interfaces;
 namespace IPK_Project1.Messages;
 
 public abstract class Message : ISerializeMessage, IDeserializeMessage {
-	public required MessageType Type { get; set; }
+	public MessageType Type { get; set; }
 	public ushort MessageId { get; set; }
 
 	protected Message() { }

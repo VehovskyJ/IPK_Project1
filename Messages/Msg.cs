@@ -8,7 +8,7 @@ public class Msg : Message {
 	private string _displayName = string.Empty;
 	private string _messageContents = string.Empty;
 
-	public required string DisplayName {
+	public string DisplayName {
 		get => _displayName;
 		set {
 			if (!CheckDisplayName(value)) {
@@ -19,7 +19,7 @@ public class Msg : Message {
 		}
 	}
 	
-	public required string MessageContents {
+	public string MessageContents {
 		get => _messageContents;
 		set {
 			if (!CheckMessageContents(value)) {
@@ -68,7 +68,8 @@ public class Msg : Message {
 		if (!match.Success) {
 			throw new ArgumentException("Invalid message format");
 		}
-		
+
+		Type = MessageType.Msg;
 		DisplayName = match.Groups["DisplayName"].Value;
 		MessageContents = match.Groups["MessageContent"].Value;
 	}

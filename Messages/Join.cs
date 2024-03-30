@@ -56,17 +56,18 @@ public class Join : Message {
 		throw new NotImplementedException();
 	}
 
+	// Message is not expected to be received
 	public override void DeserializeTcpMessage(string message) {
-		// JOIN {ChannelID} AS {DisplayName}\r\n
-		const string pattern = @"^JOIN (?<ChannelID>\S+) AS (?<DisplayName>\S+)$";
-		var match = Regex.Match(message, pattern);
-
-		if (!match.Success) {
-			throw new ArgumentException("Invalid message format");
-		}
-		
-		ChannelId = match.Groups["ChannelID"].Value;
-		DisplayName = match.Groups["DisplayName"].Value;
+		// // JOIN {ChannelID} AS {DisplayName}\r\n
+		// const string pattern = @"^JOIN (?<ChannelID>\S+) AS (?<DisplayName>\S+)$";
+		// var match = Regex.Match(message, pattern);
+		//
+		// if (!match.Success) {
+		// 	throw new ArgumentException("Invalid message format");
+		// }
+		//
+		// ChannelId = match.Groups["ChannelID"].Value;
+		// DisplayName = match.Groups["DisplayName"].Value;
 	}
 
 	public override void DeserializeUdpMessage(byte[] message) {

@@ -5,11 +5,11 @@ using IPK_Project1.Enums;
 namespace IPK_Project1.Messages;
 
 public class Reply : Message {
-	public required bool Result { get; set; }
-	public required ushort RefMessageId { get; set; }
+	public bool Result { get; set; }
+	public ushort RefMessageId { get; set; }
 	private string _messageContents = String.Empty;
 
-	public required string MessageContents {
+	private string MessageContents {
 		get => _messageContents;
 		set {
 			if (!CheckMessageContents(value)) {
@@ -62,6 +62,7 @@ public class Reply : Message {
 			throw new ArgumentException("Invalid message format.");
 		}
 
+		Type = MessageType.Reply;
 		if (match.Groups[1].Value == "OK") {
 			Result = true;
 		} else {

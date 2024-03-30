@@ -39,6 +39,7 @@ public class Err : Msg {
 			throw new ArgumentException("Invalid message format");
 		}
 		
+		Type = MessageType.Err;
 		DisplayName = match.Groups["DisplayName"].Value;
 		MessageContents = match.Groups["MessageContent"].Value;
 	}

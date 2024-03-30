@@ -1,5 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
+using IPK_Project1.Enums;
 
 namespace IPK_Project1.Messages;
 
@@ -21,6 +22,8 @@ public class Bye : Message {
 		if (!match.Success) {
 			throw new ArgumentException("Invalid message format");
 		}
+
+		Type = MessageType.Bye;
 	}
 
 	public override void DeserializeUdpMessage(byte[] message) {

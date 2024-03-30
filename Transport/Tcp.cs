@@ -36,8 +36,7 @@ public class Tcp : Client {
 				int bytesRead = stream.Read(data, 0, data.Length);
 				if (bytesRead > 0) {
 					string receivedMessage = Encoding.ASCII.GetString(data, 0, bytesRead);
-					// TODO: process message
-					Console.Write(receivedMessage);
+					ProcessMessage(receivedMessage);
 				}
 			}
 		} catch (Exception e) {
@@ -45,6 +44,93 @@ public class Tcp : Client {
 		}
 	}
 
+	protected override void ProcessMessage(string message) {
+		// Identify the message type and create a message object
+		switch (message[0]) {
+			case 'B': case 'b':
+				// Receiving Bye message results in closing the connection and terminating the program
+				Bye receiveBye = new Bye();
+				
+				try {
+					// Try to deserialize bye message
+					receiveBye.DeserializeTcpMessage(message);
+				} catch (Exception e) {
+					ByeOnInvalidMessage(e.Message);
+				}
+				
+				// Recycling :)
+				SendData(receiveBye.CreateTcpMessage());
+				Environment.Exit(0);
+				break;
+			case 'E': case 'e':
+				Err receiveErr = new Err();
+				try {
+					receiveErr.DeserializeTcpMessage(message);
+				} catch (Exception e) {
+					ByeOnInvalidMessage(e.Message);
+				}
+				
+				// Print out the error message and close the connection
+				receiveErr.PrintMessage();
+				Bye bye = new Bye();
+				SendData(bye.CreateTcpMessage());
+				Environment.Exit(0);
+				break;
+			case 'M': case 'm':
+				Msg receiveMsg = new Msg();
+				try {
+					receiveMsg.DeserializeTcpMessage(message);
+				} catch (Exception e) {
+					ByeOnInvalidMessage(e.Message);
+				}
+				
+				if (State != State.Open) {
+					ByeOnInvalidMessage("Message Unexpected");
+				}
+				
+				receiveMsg.PrintMessage();
+				break;
+			case 'R': case 'r':
+				Reply receiveReply = new Reply();
+				try {
+					receiveReply.DeserializeTcpMessage(message);
+				} catch (Exception e) {
+					ByeOnInvalidMessage(e.Message);
+				}
+				
+				// Print incoming reply message
+				receiveReply.PrintMessage();
+
+				if (State == State.Authenticating) {
+					State = receiveReply.Result ? State.Open : State.Default;
+					return;
+				}
+				if (State != State.Open) {
+					ByeOnInvalidMessage("Message Unexpected");
+				}
+				
+				break;
+			default:
+				// Receiving Auth, Confirm, Join or any other message will result in error and closing the connection
+				ByeOnInvalidMessage("Invalid or malformed message.");
+				break;
+		}
+	}
+
+	// Sends Err message to the server, closes the connection with Bye and terminates the program
+	private void ByeOnInvalidMessage(string error) {
+		Error.Print("Received invalid message. Closing the connection.");
+		Err err = new Err {
+			Type = MessageType.Err,
+			DisplayName = DisplayName,
+			MessageContents = error,
+		};
+		SendData(err.CreateTcpMessage());
+		Bye bye = new Bye();
+		SendData(bye.CreateTcpMessage());
+		Environment.Exit(1);
+	}
+	
 	public override void SendData(string message) {
 		byte[] data;
 		// Check if the message is ASCII encoded and replace non ascii characters with '?'

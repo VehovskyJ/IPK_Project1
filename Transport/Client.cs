@@ -42,6 +42,9 @@ public abstract class Client {
 	// Handles receiving data from the server
 	protected abstract void ReceiveData();
 	
+	// Processes the message received from the server
+	protected abstract void ProcessMessage(string message);
+	
 	// Handles processing and sending the data to the server
 	public abstract void SendData(string message);
 
