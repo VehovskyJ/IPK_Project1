@@ -11,7 +11,7 @@ public class Join : Message {
 	public required string ChannelId {
 		get => _channelId;
 		set {
-			if (CheckUsernameOrChannelId(value)) {
+			if (!CheckUsernameOrChannelId(value)) {
 				throw new ArgumentException("ChannelID can only contain characters [A-z0-9-] and be 20 characters long");
 			}
 			
@@ -22,7 +22,7 @@ public class Join : Message {
 	public required string DisplayName {
 		get => _displayName;
 		set {
-			if (CheckDisplayName(value)) {
+			if (!CheckDisplayName(value)) {
 				throw new ArgumentException("DisplayName can only contain printable characters and be 20 characters long");
 			}
 			

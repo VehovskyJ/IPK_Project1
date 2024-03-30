@@ -11,7 +11,7 @@ public class Auth : Message {
 	public required string Username {
 		get => _username;
 		set {
-			if (CheckUsernameOrChannelId(value)) {
+			if (!CheckUsernameOrChannelId(value)) {
 				throw new ArgumentException("Username can only contain characters [A-z0-9-] and be 20 characters long");
 			}
 			
@@ -22,7 +22,7 @@ public class Auth : Message {
 	public required string DisplayName {
 		get => _displayName;
 		set {
-			if (CheckDisplayName(value)) {
+			if (!CheckDisplayName(value)) {
 				throw new ArgumentException("DisplayName can only contain printable characters and be 20 characters long");
 			}
 			
@@ -33,7 +33,7 @@ public class Auth : Message {
 	public required string Secret { 
 		get => _secret;
 		set {
-			if (CheckSecret(value)) {
+			if (!CheckSecret(value)) {
 				throw new ArgumentException("Secret can only contain characters [A-z0-9-] and be 128 characters long");
 			}
 			

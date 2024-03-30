@@ -12,7 +12,7 @@ public class Reply : Message {
 	public required string MessageContents {
 		get => _messageContents;
 		set {
-			if (CheckMessageContents(value)) {
+			if (!CheckMessageContents(value)) {
 				throw new ArgumentException("MessageContents can only contain printable characters and be 1400 characters long");
 			}
 			

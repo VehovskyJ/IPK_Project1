@@ -11,7 +11,7 @@ public class Msg : Message {
 	public required string DisplayName {
 		get => _displayName;
 		set {
-			if (CheckDisplayName(value)) {
+			if (!CheckDisplayName(value)) {
 				throw new ArgumentException("DisplayName can only contain printable characters and be 20 characters long");
 			}
 			
@@ -22,7 +22,7 @@ public class Msg : Message {
 	public required string MessageContents {
 		get => _messageContents;
 		set {
-			if (CheckMessageContents(value)) {
+			if (!CheckMessageContents(value)) {
 				throw new ArgumentException("MessageContents can only contain printable characters and be 1400 characters long");
 			}
 			
