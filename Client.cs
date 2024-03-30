@@ -84,14 +84,14 @@ public class Client {
 				return;
 			}
 
-			Auth auth = new Auth {
-				Type = MessageType.Auth,
-				DisplayName = ac.DisplayName,
-				Secret = ac.Secret,
-				Username = ac.Username,
-			};
-
 			try {
+				Auth auth = new Auth {
+					Type = MessageType.Auth,
+					DisplayName = ac.DisplayName,
+					Secret = ac.Secret,
+					Username = ac.Username,
+				};
+				
 				data = Encoding.ASCII.GetBytes(auth.CreateTcpMessage());
 			} catch (Exception e) {
 				Error.Print(e.Message);
