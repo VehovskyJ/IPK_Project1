@@ -16,7 +16,12 @@ static class Program {
 			} else {
 				// Else is not needed, since the program exits on error,
 				// but the warning about possible null persist when else is not present
-				tcp.Run(cliArguments.ServerAddress, cliArguments.ServerPort);
+				try {
+					tcp.Run(cliArguments.ServerAddress, cliArguments.ServerPort);
+				} catch (Exception e) {
+					Error.Print(e.Message);
+					Environment.Exit(1);
+				}
 			}
 			
 			// Handle Ctrl+C
