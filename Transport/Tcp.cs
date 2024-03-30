@@ -156,6 +156,11 @@ public class Tcp : Client {
 	}
 	
 	public override void SendData(string message) {
+		if (State == State.Authenticating) {
+			Error.Print("Cannot process messages or commands while authenticating.");
+			return;
+		}
+		
 		byte[] data;
 		// Check if the message is ASCII encoded and replace non ascii characters with '?'
 		StringBuilder stringBuilder = new();
