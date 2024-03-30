@@ -28,17 +28,17 @@ public abstract class Message : ISerializeMessage, IDeserializeMessage {
 		return value.Length <= 1400 && !value.Any(char.IsControl);
 	}
 	
-	protected static bool CheckDisplayName(string value) {
+	public static bool CheckDisplayName(string value) {
 		// DisplayName should be at most 20 characters long and contain only printable characters
 		return value.Length <= 20 && !value.Any(char.IsControl);
 	}
 	
-	protected static bool CheckUsernameOrChannelId(string value) {
+	public static bool CheckUsernameOrChannelId(string value) {
 		// Username should be at most 20 characters long and contain only characters [A-Za-z0-9-]
 		return value.Length <= 20 && Regex.IsMatch(value, @"^[A-Za-z0-9-]+$");
 	}
 	
-	protected static bool CheckSecret(string value) {
+	public static bool CheckSecret(string value) {
 		// Secret should be at most 128 characters long and contain only characters [A-Za-z0-9-]
 		return value.Length <= 128 && Regex.IsMatch(value, @"^[A-Za-z0-9-]+$");
 	}

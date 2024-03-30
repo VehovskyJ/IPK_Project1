@@ -24,7 +24,7 @@ static class Program {
 				while (true) {
 					string? message = Console.ReadLine();
 					if (!string.IsNullOrEmpty(message)) {
-						tcpClient.SendTcpData(Encoding.ASCII.GetBytes(message));
+						tcpClient.SendTcpData(message);
 					} else {
 						Error.Print("Input cannot be empty.");
 					}
