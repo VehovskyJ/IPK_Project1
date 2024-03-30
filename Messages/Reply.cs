@@ -56,14 +56,14 @@ public class Reply : Message {
 	public override void DeserializeTcpMessage(string message) {
 		// REPLY {"OK"|"NOK"} IS {MessageContent}\r\n
 		const string pattern = @"^REPLY (OK|NOK) IS (.*)$";
-		var match = Regex.Match(message, pattern);
+		var match = Regex.Match(message, pattern, RegexOptions.IgnoreCase);
 		
 		if (!match.Success) {
 			throw new ArgumentException("Invalid message format.");
 		}
 
 		Type = MessageType.Reply;
-		if (match.Groups[1].Value == "OK") {
+		if (match.Groups[1].Value is "OK" or "ok") {
 			Result = true;
 		} else {
 			Result = false;

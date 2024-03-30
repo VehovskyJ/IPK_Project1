@@ -33,7 +33,7 @@ public class Err : Msg {
 	public override void DeserializeTcpMessage(string message) {
 		// ERR FROM {DisplayName} IS {MessageContent}\r\n
 		const string pattern = @"^ERR FROM (?<DisplayName>\S+) IS (?<MessageContent>.+)$";
-		Match match = Regex.Match(message, pattern);
+		Match match = Regex.Match(message, pattern, RegexOptions.IgnoreCase);
 		
 		if (!match.Success) {
 			throw new ArgumentException("Invalid message format");

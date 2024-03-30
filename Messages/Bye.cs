@@ -17,7 +17,7 @@ public class Bye : Message {
 	public override void DeserializeTcpMessage(string message) {
 		// BYE\r\n
 		const string pattern = @"^BYE$";
-		var match = Regex.Match(message, pattern);
+		var match = Regex.Match(message, pattern, RegexOptions.IgnoreCase);
 
 		if (!match.Success) {
 			throw new ArgumentException("Invalid message format");
