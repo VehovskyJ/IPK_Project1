@@ -19,6 +19,14 @@ static class Program {
 				// but the warning about possible null persist when else is not present
 				tcp.Run(cliArguments.ServerAddress, cliArguments.ServerPort);
 			}
+			
+			// Handle Ctrl+C
+			Console.CancelKeyPress += (sender, eventArgs) => {
+				eventArgs.Cancel = true;
+				tcp.Close();
+				Environment.Exit(0);
+			};
+			
 			// Read data from the console
 			try {
 				while (true) {
