@@ -5,8 +5,14 @@ namespace IPK_Project1;
 
 static class Program {
 	static void Main(string[] args) {
-		CliArguments cliArguments = Cli.Parse(args);
-
+		CliArguments cliArguments = new();
+		try {
+			cliArguments = Cli.Parse(args);
+		} catch (Exception e) {
+			Error.Print(e.Message);
+			Environment.Exit(1);
+		}
+		
 		if (cliArguments.TransportProtocol == TransportProtocol.Tcp) {
 			// Create TCP client
 			Tcp tcp = new Tcp();

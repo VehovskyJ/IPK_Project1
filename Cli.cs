@@ -21,7 +21,7 @@ public class Cli {
 
 		for (int i = 0; i < args.Length; i++) {
 			// Check if there is a value for the argument
-			if (i + i > args.Length) {
+			if (i + 1 >= args.Length) {
 				Error.Print("Missing value for argument.");
 				Environment.Exit(1);
 			}
