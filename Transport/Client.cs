@@ -107,7 +107,7 @@ public abstract class Client {
 
 	// Validates the /auth command, if valid, returns the AuthCommand otherwise returns empty AuthCommand
 	protected static AuthCommand ValidateAuthCommand(string message) {
-		var match = Regex.Match(message, @"/auth\s(.{1,20})\s(.{1,20})\s(.{1,20})");
+		var match = Regex.Match(message, @"/auth\s(.{1,20})\s(.{1,128})\s(.{1,20})");
 		AuthCommand ac = new AuthCommand {
 			Username = match.Groups[1].Value,
 			Secret = match.Groups[2].Value,
@@ -119,7 +119,7 @@ public abstract class Client {
 
 		Error.Print("Invalid auth command. Use /auth {Username} {Secret} {DisplayName}");
 		Error.Print("{Username} has to contain only characters [A-z0-9-] and be between 1 and 20 characters long.");
-		Error.Print("{Secret} has to contain only characters [A-z0-9-] and be between 1 and 20 characters long.");
+		Error.Print("{Secret} has to contain only characters [A-z0-9-] and be between 1 and 128 characters long.");
 		Error.Print("{DisplayName} has to contain only printable characters and be between 1 and 20 characters long.");
 		return new AuthCommand();
 	}
