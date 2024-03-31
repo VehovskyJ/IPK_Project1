@@ -175,9 +175,8 @@ public class Tcp : Client {
 			string command = message.Split(' ')[0];
 			if (CommandHandlers.TryGetValue(command, out var handler)) {
 				handler(message);
+				return;
 			}
-
-			return;
 		}
 		
 		// Message is not a command, process as a message
