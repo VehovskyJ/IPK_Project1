@@ -274,23 +274,4 @@ public class Tcp : Client {
 		NetworkStream stream = _client.GetStream();
 		stream.Write(data, 0, data.Length);
 	}
-
-	protected override void HandleRenameCommand(string message) {
-		string name = ValidateRenameCommand(message);
-		if (!string.IsNullOrEmpty(name)) {
-			DisplayName = name;
-		}
-	}
-
-	protected override void HandleGetNameCommand(string message) {
-		Console.WriteLine("[" + DisplayName + "]");
-	}
-
-	protected override void HandleGetStateCommand(string message) {
-		Console.WriteLine("[" + State + "]");
-	}
-
-	protected override void HandleHelpCommand(string message) {
-		PrintHelp();
-	}
 }

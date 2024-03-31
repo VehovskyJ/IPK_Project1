@@ -56,16 +56,27 @@ public abstract class Client {
 	// /join sends join request to the server
 	protected abstract void HandleJoinCommand(string message);
 	// /rename changes the display name of the user
-	protected abstract void HandleRenameCommand(string message);
+	private void HandleRenameCommand(string message) {
+		string name = ValidateRenameCommand(message);
+		if (!string.IsNullOrEmpty(name)) {
+			DisplayName = name;
+		}
+	}
 	// /getname prints out the current display name
-	protected abstract void HandleGetNameCommand(string message);
+	private void HandleGetNameCommand(string message) {
+		Console.WriteLine("[" + DisplayName + "]");
+	}
 	// /getstate prints out the current state of the client
-	protected abstract void HandleGetStateCommand(string message);
+	private void HandleGetStateCommand(string message) {
+		Console.WriteLine("[" + State + "]");
+	}
 	// /help prints out supported local commands
-	protected abstract void HandleHelpCommand(string message);
+	private void HandleHelpCommand(string message) {
+		PrintHelp();
+	}
 	
 	// Print supported local commands
-	protected static void PrintHelp() {
+	private static void PrintHelp() {
 		Console.WriteLine("Supported local commands:");
 		Console.WriteLine("/auth {Username} {Secret} {DisplayName}");
 		Console.WriteLine("		Sends AUTH command to the server with the provided parameters");
@@ -80,7 +91,7 @@ public abstract class Client {
 	}
 
 	// Validates the /rename command, if valid, returns the new display name otherwise returns empty string
-	protected static string ValidateRenameCommand(string message) {
+	private static string ValidateRenameCommand(string message) {
 		var match = Regex.Match(message, @"/rename\s(.{1,20})");
 		string displayName = match.Groups[1].Value;
 		if (Message.CheckDisplayName(displayName)) {
