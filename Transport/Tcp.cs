@@ -114,9 +114,14 @@ public class Tcp : Client {
 					State = receiveReply.Result ? State.Open : State.Default;
 					return;
 				}
-				if (State != State.Open) {
-					ByeOnInvalidMessage("Message Unexpected");
+				if (State == State.Joining) {
+					State = State.Default;
+					return;
 				}
+				// In any other state the Reply message is unexpected
+				// The FSM does not directly state that Reply cannot be received in open state
+				// But it doesnt make sense to receive a Reply if no command was sent to the server
+				ByeOnInvalidMessage("Message Unexpected");
 				
 				break;
 			default:
@@ -263,6 +268,8 @@ public class Tcp : Client {
 			Error.Print("Cannot join a channel when not connected to the server.");
 			return;
 		}
+		// Change current state to joining
+		State = State.Joining;
 		
 		NetworkStream stream = _client.GetStream();
 		stream.Write(data, 0, data.Length);
