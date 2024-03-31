@@ -11,7 +11,18 @@ public class Bye : Message {
 	}
 
 	public override byte[] CreateUdpMessage() {
-		throw new NotImplementedException();
+		//    1 byte       2 bytes
+		// 	+--------+--------+--------+
+		// 	|  0xFF  |    MessageID    |
+		// 	+--------+--------+--------+
+		byte[] messageIdBytes = BitConverter.GetBytes(MessageId);
+		
+		byte[] udpMessage = new byte[1 + messageIdBytes.Length];
+		udpMessage[0] = (byte)MessageType.Bye;
+		
+		Buffer.BlockCopy(messageIdBytes, 0, udpMessage, 1, messageIdBytes.Length);
+
+		return udpMessage;
 	}
 
 	public override void DeserializeTcpMessage(string message) {
@@ -27,7 +38,18 @@ public class Bye : Message {
 	}
 
 	public override void DeserializeUdpMessage(byte[] message) {
-		// TODO: Implement
-		throw new NotImplementedException();
+		if (message == null || message.Length < 3) {
+			throw new ArgumentException("Invalid message format");
+		}
+		
+		byte type = message[0];
+		ushort messageId = BitConverter.ToUInt16(message, 1);
+		
+		if (type != (byte)MessageType.Bye) {
+			throw new ArgumentException("Invalid message type");
+		}
+
+		Type = MessageType.Bye;
+		MessageId = messageId;
 	}
 }

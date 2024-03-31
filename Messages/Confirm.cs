@@ -22,8 +22,18 @@ public class Confirm : Message {
 	}
 
 	public override byte[] CreateUdpMessage() {
-		// TODO: Implement
-		throw new NotImplementedException();
+		//    1 byte       2 bytes
+		//	+--------+--------+--------+
+		//	|  0x00  |  Ref_MessageID  |
+		//	+--------+--------+--------+
+		byte[] refMessageIdBytes = BitConverter.GetBytes(RefMessageId);
+		
+		byte[] udpMessage = new byte[1 + refMessageIdBytes.Length];
+		udpMessage[0] = (byte)MessageType.Confirm;
+		
+		Buffer.BlockCopy(refMessageIdBytes, 0, udpMessage, 1, refMessageIdBytes.Length);
+		
+		return udpMessage;
 	}
 
 	// Method is not implemented in TCP
@@ -32,7 +42,18 @@ public class Confirm : Message {
 	}
 
 	public override void DeserializeUdpMessage(byte[] message) {
-		// TODO: Implement
-		throw new NotImplementedException();
+		if (message == null || message.Length != 3) {
+			throw new ArgumentException("Invalid message format");
+		}
+		
+		byte type = message[0];
+		ushort refMessageId = BitConverter.ToUInt16(message, 1);
+
+		if (type != (byte)MessageType.Confirm) {
+			throw new ArgumentException("Invalid message type");
+		}
+
+		Type = MessageType.Confirm;
+		RefMessageId = refMessageId;
 	}
 }

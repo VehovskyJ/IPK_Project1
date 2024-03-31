@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using IPK_Project1.Enums;
 
@@ -39,17 +40,13 @@ public class Reply : Message {
 		Console.Error.WriteLine($"{(Result ? "Success" : "Failure")}: {MessageContents}");
 	}
 
+	// Reply messages are not sent by the client
 	public override string CreateTcpMessage() {
-		if (string.IsNullOrEmpty(MessageContents)) {
-			throw new ArgumentException("MessageContents is empty, cannot send TCP message.");
-		}
-		
-		// REPLY {"OK"|"NOK"} IS {MessageContent}\r\n
-		return $"REPLY {(Result ? "OK" : "NOK")} IS {MessageContents}\r\n";
+		throw new NotImplementedException();
 	}
 
+	// Reply messages are not sent by the client
 	public override byte[] CreateUdpMessage() {
-		// TODO: Implement UDP message creation
 		throw new NotImplementedException();
 	}
 
@@ -68,7 +65,33 @@ public class Reply : Message {
 	}
 
 	public override void DeserializeUdpMessage(byte[] message) {
-		// TODO: Implement UDP message deserialization
-		throw new NotImplementedException();
+		if (message == null || message.Length < 7) {
+			throw new ArgumentException("Invalid message format");
+		}
+		
+		byte type = message[0];
+		ushort messageId = BitConverter.ToUInt16(message, 1);
+		bool result = message[3] != 0;
+		ushort refMessageId = BitConverter.ToUInt16(message, 4);
+		
+		if (type != (byte)MessageType.Reply) {
+			throw new ArgumentException("Invalid message type");
+		}
+		
+		// Find start and end of the message contents
+		int messageContentsStart = 6;
+		int messageContentsEnd = Array.IndexOf(message, (byte)0, messageContentsStart);
+		if (messageContentsEnd < 0) {
+			throw new ArgumentException("Invalid message format");
+		}
+
+		// Extract the information
+		string messageContents = Encoding.ASCII.GetString(message, messageContentsStart, messageContentsEnd - messageContentsStart);
+
+		Type = MessageType.Reply;
+		MessageId = messageId;
+		Result = result;
+		RefMessageId = refMessageId;
+		MessageContents = messageContents;
 	}
 }
