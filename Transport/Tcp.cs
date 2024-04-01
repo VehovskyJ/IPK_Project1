@@ -84,9 +84,6 @@ public class Tcp : Client {
 					ByeOnInvalidMessage(e.Message);
 				}
 				
-				// Recycling :)
-				data = Encoding.ASCII.GetBytes(receiveBye.CreateTcpMessage());
-				stream.Write(data, 0, data.Length);
 				Environment.Exit(0);
 				break;
 			case 'E': case 'e':
