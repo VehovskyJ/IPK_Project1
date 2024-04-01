@@ -50,6 +50,8 @@ public abstract class Client {
 	// Handles processing and sending the data to the server
 	public abstract void SendData(string message);
 
+	public abstract void SendBye();
+
 	// Local command handlers
 	// /auth sends authentication request to the server 
 	protected abstract void HandleAuthCommand(string message);

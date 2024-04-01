@@ -239,6 +239,11 @@ public class Udp : Client {
 		sendThread.Start();
 	}
 
+	public override void SendBye() {
+		Bye bye = new Bye();
+		_client.Send(bye.CreateUdpMessage(), bye.CreateUdpMessage().Length);
+	}
+
 	private void SendDataWithRetransmissions(byte[] data, CancellationToken token) {
 		int retransmissions = 0;
 		while (retransmissions <= _maxRetransmissions) {

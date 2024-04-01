@@ -233,6 +233,13 @@ public class Tcp : Client {
 		stream.Write(data, 0, data.Length);
 	}
 
+	public override void SendBye() {
+		NetworkStream stream = _client.GetStream();
+		Bye bye = new Bye();
+		byte[] data = Encoding.ASCII.GetBytes(bye.CreateTcpMessage());
+		stream.Write(data, 0, data.Length);
+	}
+
 	// Local command handlers
 	protected override void HandleAuthCommand(string message) {
 		byte[] data;

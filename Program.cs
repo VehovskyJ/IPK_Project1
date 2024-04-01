@@ -53,6 +53,10 @@ static class Program {
 				if (!string.IsNullOrEmpty(message)) {
 					client.SendData(message);
 				} else {
+					if (message == null) {
+						client.SendBye();
+						Environment.Exit(0);
+					}
 					Error.Print("Input cannot be empty.");
 				}
 			}
