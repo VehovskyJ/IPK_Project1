@@ -2,10 +2,11 @@ using System;
 using System.Text;
 using System.Text.RegularExpressions;
 using IPK_Project1.Enums;
+using IPK_Project1.Interfaces;
 
 namespace IPK_Project1.Messages;
 
-public class Reply : Message {
+public class Reply : Message, IDeserializeTcpMessage, IDeserializeUdpMessage {
 	public bool Result { get; set; }
 	public ushort RefMessageId { get; set; }
 	private string _messageContents = string.Empty;
@@ -40,17 +41,7 @@ public class Reply : Message {
 		Console.Error.WriteLine($"{(Result ? "Success" : "Failure")}: {MessageContents}");
 	}
 
-	// Reply messages are not sent by the client
-	public override string CreateTcpMessage() {
-		throw new NotImplementedException();
-	}
-
-	// Reply messages are not sent by the client
-	public override byte[] CreateUdpMessage() {
-		throw new NotImplementedException();
-	}
-
-	public override void DeserializeTcpMessage(string message) {
+	public void DeserializeTcpMessage(string message) {
 		// REPLY {"OK"|"NOK"} IS {MessageContent}\r\n
 		const string pattern = @"^REPLY (OK|NOK) IS (.*)(\r\n)$";
 		var match = Regex.Match(message, pattern, RegexOptions.IgnoreCase);
@@ -64,7 +55,7 @@ public class Reply : Message {
 		MessageContents = match.Groups[2].Value;
 	}
 
-	public override void DeserializeUdpMessage(byte[] message) {
+	public void DeserializeUdpMessage(byte[] message) {
 		if (message == null || message.Length < 7) {
 			throw new ArgumentException("Invalid message format");
 		}
@@ -85,7 +76,7 @@ public class Reply : Message {
 			throw new ArgumentException("Invalid message format");
 		}
 
-		// Extract the information
+		// Extract MessageContents
 		string messageContents = Encoding.ASCII.GetString(message, messageContentsStart, messageContentsEnd - messageContentsStart);
 
 		Type = MessageType.Reply;

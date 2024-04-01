@@ -17,42 +17,33 @@ public class Err : Msg {
 		Console.Error.WriteLine($"ERR FROM {DisplayName}: {MessageContents}");
 	}
 
-	public override string CreateTcpMessage() {
-		if (string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(MessageContents)) {
-			throw new ArgumentException("DisplayName or MessageContents is empty, cannot send TCP message.");
-		}
+	public new string SerializeTcpMessage() {
+		ValidateMessage();
 		
 		// ERR FROM {DisplayName} IS {MessageContent}\r\n
 		return $"ERR FROM {DisplayName} IS {MessageContents}\r\n";
 	}
 
-	public override byte[] CreateUdpMessage() {
+	public new byte[] SerializeUdpMessage() {
 		//   1 byte       2 bytes
 		// +--------+--------+--------+-------~~------+---+--------~~---------+---+
 		// |  0x04  |    MessageID    |  DisplayName  | 0 |  MessageContents  | 0 |
 		// +--------+--------+--------+-------~~------+---+--------~~---------+---+
-		if (string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(MessageContents)) {
-			throw new ArgumentException("DisplayName or MessageContents is empty, cannot send TCP message.");
-		}
-		
-		byte[] messageIdBytes = BitConverter.GetBytes(MessageId);
-		byte[] displayNameBytes = Encoding.ASCII.GetBytes(DisplayName);
-		byte[] messageContentsBytes = Encoding.ASCII.GetBytes(MessageContents);
-		byte[] zeroByte = new byte[1];
-		
-		byte[] udpMessage = new byte[1 + messageIdBytes.Length + displayNameBytes.Length + 1 + messageContentsBytes.Length + 1];
-		udpMessage[0] = (byte)MessageType.Err;
-		
-		Buffer.BlockCopy(messageIdBytes, 0, udpMessage, 1, messageIdBytes.Length);
-		Buffer.BlockCopy(displayNameBytes, 0, udpMessage, 3, displayNameBytes.Length);
-		Buffer.BlockCopy(zeroByte, 0, udpMessage, 3 + displayNameBytes.Length, zeroByte.Length);
-		Buffer.BlockCopy(messageContentsBytes, 0, udpMessage, 4 + displayNameBytes.Length, messageContentsBytes.Length);
-		Buffer.BlockCopy(zeroByte, 0, udpMessage, 4 + displayNameBytes.Length + messageContentsBytes.Length, zeroByte.Length);
+		ValidateMessage();
 
-		return udpMessage;
+		var udpMessage = new List<byte>();
+		
+		udpMessage.Add((byte)MessageType.Err);
+		udpMessage.AddRange(BitConverter.GetBytes(MessageId));
+		udpMessage.AddRange(Encoding.ASCII.GetBytes(DisplayName));
+		udpMessage.AddRange(new byte[1]);
+		udpMessage.AddRange(Encoding.ASCII.GetBytes(MessageContents));
+		udpMessage.AddRange(new byte[1]);
+		
+		return udpMessage.ToArray();
 	}
 	
-	public override void DeserializeTcpMessage(string message) {
+	public new void DeserializeTcpMessage(string message) {
 		// ERR FROM {DisplayName} IS {MessageContent}\r\n
 		const string pattern = @"^ERR FROM (?<DisplayName>\S+) IS (?<MessageContent>.+)(\r\n)$";
 		Match match = Regex.Match(message, pattern, RegexOptions.IgnoreCase);
@@ -66,7 +57,7 @@ public class Err : Msg {
 		MessageContents = match.Groups["MessageContent"].Value;
 	}
 
-	public override void DeserializeUdpMessage(byte[] message) {
+	public new void DeserializeUdpMessage(byte[] message) {
 		if (message == null || message.Length < 7) {
 			throw new ArgumentException("Invalid message format");
 		}

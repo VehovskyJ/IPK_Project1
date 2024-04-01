@@ -21,7 +21,7 @@ public abstract class Client {
 		}
 	}
 	
-	//Dictionary for the supported local commands
+	// Dictionary for the supported local commands
 	protected Dictionary<string, Action<string>> CommandHandlers;
 
 	protected Client() {

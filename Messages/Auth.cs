@@ -1,10 +1,11 @@
 using System;
 using System.Text;
 using IPK_Project1.Enums;
+using IPK_Project1.Interfaces;
 
 namespace IPK_Project1.Messages;
 
-public class Auth : Message {
+public class Auth : Message, ISerializeTcpMessage, ISerializeUdpMessage {
 	private string _username = string.Empty;
 	private string _displayName = string.Empty;
 	private string _secret = string.Empty;
@@ -55,52 +56,40 @@ public class Auth : Message {
 		DisplayName = displayName;
 		Secret = secret;
 	}
-
-	public override string CreateTcpMessage() {
-		if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(Secret)) {
-			throw new ArgumentException("Username, DisplayName or Secret is empty, cannot send TCP message.");
+	
+	// Check if all required attributes are set
+	private void ValidateMessage() {
+		if (!CheckMessageContents(Username) || !CheckMessageContents(DisplayName) || !CheckMessageContents(Secret)) {
+			throw new ArgumentException(
+				"Username, DisplayName or Secret contain invalid characters or exceed the maximum length.");
 		}
+	}
+	
+	public string SerializeTcpMessage() {
+		ValidateMessage();
 		
 		// AUTH {Username} AS {DisplayName} USING {Secret}\r\n
 		return $"AUTH {Username} AS {DisplayName} USING {Secret}\r\n";
 	}
 	
-	public override byte[] CreateUdpMessage() {
+	public byte[] SerializeUdpMessage() {
 		// 	 1 byte       2 bytes
 		// +--------+--------+--------+-----~~-----+---+-------~~------+---+----~~----+---+
 		// |  0x02  |    MessageID    |  Username  | 0 |  DisplayName  | 0 |  Secret  | 0 |
 		// +--------+--------+--------+-----~~-----+---+-------~~------+---+----~~----+---+
-		if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(Secret)) {
-			throw new ArgumentException("Username, DisplayName or Secret is empty, cannot send TCP message.");
-		}
+		ValidateMessage();
 		
-		byte[] messageIdBytes = BitConverter.GetBytes(MessageId);
-		byte[] usernameBytes = Encoding.ASCII.GetBytes(Username);
-		byte[] displayNameBytes = Encoding.ASCII.GetBytes(DisplayName);
-		byte[] secretBytes = Encoding.ASCII.GetBytes(Secret);
-		byte[] zeroByte = new byte[1];
+		var udpMessage = new List<byte>();
 		
-		byte[] udpMessage = new byte[1 + messageIdBytes.Length + usernameBytes.Length +  1 + displayNameBytes.Length + 1 + secretBytes.Length + 1];
-		udpMessage[0] = (byte)MessageType.Auth;
+		udpMessage.Add((byte)MessageType.Auth);
+		udpMessage.AddRange(BitConverter.GetBytes(MessageId));
+		udpMessage.AddRange(Encoding.ASCII.GetBytes(Username));
+		udpMessage.AddRange(new byte[1]);
+		udpMessage.AddRange(Encoding.ASCII.GetBytes(DisplayName));
+		udpMessage.AddRange(new byte[1]);
+		udpMessage.AddRange(Encoding.ASCII.GetBytes(Secret));
+		udpMessage.AddRange(new byte[1]);
 		
-		Buffer.BlockCopy(messageIdBytes, 0, udpMessage, 1, messageIdBytes.Length);
-		Buffer.BlockCopy(usernameBytes, 0, udpMessage, 3, usernameBytes.Length);
-		Buffer.BlockCopy(zeroByte, 0, udpMessage, 3 + usernameBytes.Length, zeroByte.Length);
-		Buffer.BlockCopy(displayNameBytes, 0, udpMessage, 4 + usernameBytes.Length, displayNameBytes.Length);
-		Buffer.BlockCopy(zeroByte, 0, udpMessage, 4 + usernameBytes.Length + displayNameBytes.Length, zeroByte.Length);
-		Buffer.BlockCopy(secretBytes, 0, udpMessage, 5 + usernameBytes.Length + displayNameBytes.Length, secretBytes.Length);
-		Buffer.BlockCopy(zeroByte, 0, udpMessage, 5 + usernameBytes.Length + displayNameBytes.Length + secretBytes.Length, zeroByte.Length);
-
-		return udpMessage;
-	}
-
-	// Auth message is not received
-	public override void DeserializeTcpMessage(string message) {
-		throw new NotImplementedException();
-	}
-
-	// Auth message is not received
-	public override void DeserializeUdpMessage(byte[] message) {
-		throw new NotImplementedException();
+		return udpMessage.ToArray();
 	}
 }

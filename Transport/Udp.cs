@@ -108,7 +108,7 @@ public class Udp : Client {
 
 				try {
 					confirmReply.RefMessageId = receiveReply.MessageId;
-					_client.Send(confirmReply.CreateUdpMessage(), confirmReply.CreateUdpMessage().Length);
+					_client.Send(confirmReply.SerializeUdpMessage(), confirmReply.SerializeUdpMessage().Length);
 				} catch (Exception e) {
 					ByeOnInvalidMessage(e.Message);
 				}
@@ -147,7 +147,7 @@ public class Udp : Client {
 				
 				try {
 					confirmMsg.RefMessageId = receiveMsg.MessageId;
-					_client.Send(confirmMsg.CreateUdpMessage(), confirmMsg.CreateUdpMessage().Length);
+					_client.Send(confirmMsg.SerializeUdpMessage(), confirmMsg.SerializeUdpMessage().Length);
 				} catch (Exception e) {
 					ByeOnInvalidMessage(e.Message);
 				}
@@ -159,34 +159,6 @@ public class Udp : Client {
 				break;
 		}
 	}
-
-	// protected override void ReceiveData() {
-	// 	while (!_closed) {
-	// 		try {
-	// 			IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
-	// 			byte[] data = _client.Receive(ref remoteEP);
-	//
-	// 			// If the received data is a Confirm message
-	// 			if (data[0] == (byte)MessageType.Confirm) {
-	// 				// Extract the new port number from the Confirm message
-	// 				ushort newPort = BitConverter.ToUInt16(data, 1);
-	//
-	// 				// Close the current connection
-	// 				_client.Close();
-	//
-	// 				// Create a new UdpClient instance and connect to the server using the new port number
-	// 				_client = new UdpClient();
-	// 				_ipEndPoint.Port = newPort;
-	// 				_client.Connect(_ipEndPoint);
-	// 			} else {
-	// 				string receivedMessage = Encoding.ASCII.GetString(data);
-	// 				ProcessMessage(receivedMessage);
-	// 			}
-	// 		} catch (Exception e) {
-	// 			Error.Print(e.Message);
-	// 		}
-	// 	}
-	// }
 
 	private void ByeOnInvalidMessage(string error) {
 		Error.Print("Received invalid message. Closing the connection.");
@@ -206,7 +178,7 @@ public class Udp : Client {
 			MessageContents = error
 		};
 
-		data = err.CreateUdpMessage();
+		data = err.SerializeUdpMessage();
 		_client.Send(data, data.Length);
 
 		data = bye.CreateUdpMessage();
@@ -255,7 +227,7 @@ public class Udp : Client {
 				MessageContents = message
 			};
 
-			data = msg.CreateUdpMessage();
+			data = msg.SerializeUdpMessage();
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			return;
@@ -298,7 +270,7 @@ public class Udp : Client {
 				Username = ac.Username
 			};
 
-			data = auth.CreateUdpMessage();
+			data = auth.SerializeUdpMessage();
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			return;
@@ -335,7 +307,7 @@ public class Udp : Client {
 				DisplayName = DisplayName
 			};
 
-			data = join.CreateUdpMessage();
+			data = join.SerializeUdpMessage();
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			return;

@@ -5,27 +5,25 @@ using IPK_Project1.Enums;
 namespace IPK_Project1.Messages;
 
 public class Bye : Message {
-	public override string CreateTcpMessage() {
+	public string CreateTcpMessage() {
 		// BYE\r\n
 		return "BYE\r\n";
 	}
 
-	public override byte[] CreateUdpMessage() {
+	public byte[] CreateUdpMessage() {
 		//    1 byte       2 bytes
 		// 	+--------+--------+--------+
 		// 	|  0xFF  |    MessageID    |
 		// 	+--------+--------+--------+
-		byte[] messageIdBytes = BitConverter.GetBytes(MessageId);
+		var udpMessage = new List<byte>();
 		
-		byte[] udpMessage = new byte[1 + messageIdBytes.Length];
-		udpMessage[0] = (byte)MessageType.Bye;
+		udpMessage.Add((byte)MessageType.Bye);
+		udpMessage.AddRange(BitConverter.GetBytes(MessageId));
 		
-		Buffer.BlockCopy(messageIdBytes, 0, udpMessage, 1, messageIdBytes.Length);
-
-		return udpMessage;
+		return udpMessage.ToArray();
 	}
 
-	public override void DeserializeTcpMessage(string message) {
+	public void DeserializeTcpMessage(string message) {
 		// BYE\r\n
 		const string pattern = @"^BYE(\r\n)$";
 		var match = Regex.Match(message, pattern, RegexOptions.IgnoreCase);
@@ -37,7 +35,7 @@ public class Bye : Message {
 		Type = MessageType.Bye;
 	}
 
-	public override void DeserializeUdpMessage(byte[] message) {
+	public void DeserializeUdpMessage(byte[] message) {
 		if (message == null || message.Length < 3) {
 			throw new ArgumentException("Invalid message format");
 		}

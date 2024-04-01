@@ -1,9 +1,10 @@
 using System;
 using IPK_Project1.Enums;
+using IPK_Project1.Interfaces;
 
 namespace IPK_Project1.Messages;
 
-public class Confirm : Message {
+public class Confirm : Message, ISerializeUdpMessage, IDeserializeUdpMessage {
 	public ushort RefMessageId { get; set; }
 
 	public Confirm() { }
@@ -16,32 +17,20 @@ public class Confirm : Message {
 		RefMessageId = refMessageId;
 	}
 
-	// Method is not implemented in TCP
-	public override string CreateTcpMessage() {
-		throw new NotImplementedException();
-	}
-
-	public override byte[] CreateUdpMessage() {
+	public byte[] SerializeUdpMessage() {
 		//    1 byte       2 bytes
 		//	+--------+--------+--------+
 		//	|  0x00  |  Ref_MessageID  |
 		//	+--------+--------+--------+
-		byte[] refMessageIdBytes = BitConverter.GetBytes(RefMessageId);
+		var udpMessage = new List<byte>();
 		
-		byte[] udpMessage = new byte[1 + refMessageIdBytes.Length];
-		udpMessage[0] = (byte)MessageType.Confirm;
+		udpMessage.Add((byte)MessageType.Confirm);
+		udpMessage.AddRange(BitConverter.GetBytes(RefMessageId));
 		
-		Buffer.BlockCopy(refMessageIdBytes, 0, udpMessage, 1, refMessageIdBytes.Length);
-		
-		return udpMessage;
+		return udpMessage.ToArray();
 	}
 
-	// Method is not implemented in TCP
-	public override void DeserializeTcpMessage(string message) {
-		throw new NotImplementedException();
-	}
-
-	public override void DeserializeUdpMessage(byte[] message) {
+	public void DeserializeUdpMessage(byte[] message) {
 		if (message == null || message.Length != 3) {
 			throw new ArgumentException("Invalid message format");
 		}

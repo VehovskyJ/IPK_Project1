@@ -11,14 +11,14 @@ public class Tcp : Client {
 	private TcpClient _client = new();
 	private bool _closed;
 	
+	// Create a connection to the server
 	public override void Run(Cli cli) {
 		try {
 			// Connect to the server
-			// Null pointer reference is checked multiple times before calling Run
+			// Null pointer reference is checked multiple times before calling client.Run hence is omitted
 			_client.Connect(cli.ServerAddress!, cli.ServerPort);
 		} catch (Exception e) {
-			Error.Print($"Error connecting to the server: {e.Message}");
-			return;
+			throw new Exception($"Error connecting to the server: {e.Message}");
 		}
 
 		// Create thread for receiving TCP data
@@ -26,11 +26,13 @@ public class Tcp : Client {
 		receive.Start();
 	}
 
+	// Close a connection to the server
 	public override void Close() {
 		_closed = true;
 		_client.Close();
 	}
 
+	// Function responsible for receiving data from teh server. Runs in a separate thread
 	protected override void ReceiveData() {
 		try {
 			// Read byte stream from the server
@@ -38,12 +40,7 @@ public class Tcp : Client {
 			byte[] data = new byte[2048];
 			int bufferOffset = 0;
 
-			while (true) {
-				// If the client is closed, stop receiving data
-				if (_closed) {
-					return;
-				}
-				
+			while (!_closed) {
 				int bytesRead = stream.Read(data, 0, data.Length);
 				if (bytesRead > 0) {
 					bufferOffset += bytesRead;
@@ -64,10 +61,13 @@ public class Tcp : Client {
 				}
 			}
 		} catch (Exception e) {
+			// Exceptions are output to the standard error output.
+			// The program is not stopped and the function continues to receive data
 			Error.Print(e.Message);
 		}
 	}
 
+	// ProcessData function is responsible for handling different types of messages
 	protected override void ProcessMessage(byte[] data, int dataLength) {
 		string message = Encoding.ASCII.GetString(data, 0, dataLength);
 		NetworkStream stream = _client.GetStream();
@@ -112,8 +112,9 @@ public class Tcp : Client {
 					ByeOnInvalidMessage(e.Message);
 				}
 				
+				// Receiving Msg in any other than Open state is not expected
 				if (State != State.Open) {
-					ByeOnInvalidMessage("Message Unexpected");
+					ByeOnInvalidMessage("Unexpected message");
 				}
 				
 				receiveMsg.PrintMessage();
@@ -130,22 +131,26 @@ public class Tcp : Client {
 				receiveReply.PrintMessage();
 
 				if (State == State.Authenticating) {
+					// If the current state is Authenticating, switch to Open state if the Reply is positive
+					// otherwise switch back to the Default state. The user will have to resend /auth command
 					State = receiveReply.Result ? State.Open : State.Default;
 					return;
 				}
 				if (State == State.Joining) {
+					// If the current state is Joining, both positive and negative Reply will result in the Default state
 					State = State.Default;
 					return;
 				}
+				
 				// In any other state the Reply message is unexpected
-				// The FSM does not directly state that Reply cannot be received in open state
+				// The FSM does not directly state that Reply cannot be received in an Open state
 				// But it doesnt make sense to receive a Reply if no command was sent to the server
-				ByeOnInvalidMessage("Message Unexpected");
+				ByeOnInvalidMessage("Unexpected message");
 				
 				break;
 			default:
 				// Receiving Auth, Confirm, Join or any other message will result in error and closing the connection
-				ByeOnInvalidMessage("Invalid or malformed message.");
+				ByeOnInvalidMessage("Unexpected or malformed message.");
 				break;
 		}
 	}
@@ -170,7 +175,7 @@ public class Tcp : Client {
 			DisplayName = DisplayName,
 			MessageContents = error
 		};
-		data = Encoding.ASCII.GetBytes(err.CreateTcpMessage());
+		data = Encoding.ASCII.GetBytes(err.SerializeTcpMessage());
 		stream.Write(data, 0, data.Length);
 		
 		data = Encoding.ASCII.GetBytes(bye.CreateTcpMessage());
@@ -179,6 +184,7 @@ public class Tcp : Client {
 		Environment.Exit(1);
 	}
 	
+	// This function send the user inputted data to the server
 	public override void SendData(string message) {
 		if (State == State.Authenticating) {
 			Error.Print("Cannot process messages or commands while authenticating.");
@@ -204,7 +210,7 @@ public class Tcp : Client {
 		}
 		
 		// Message is not a command, process as a message
-		// Message can only be sent in open state
+		// Message can only be sent in an Open state
 		if (State != State.Open) {
 			Error.Print("Cannot send a message when not connected to the server.");
 			return;
@@ -217,7 +223,7 @@ public class Tcp : Client {
 				MessageContents = message
 			};
 			
-			data = Encoding.ASCII.GetBytes(msg.CreateTcpMessage());
+			data = Encoding.ASCII.GetBytes(msg.SerializeTcpMessage());
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			return;
@@ -244,7 +250,7 @@ public class Tcp : Client {
 				Username = ac.Username
 			};
 				
-			data = Encoding.ASCII.GetBytes(auth.CreateTcpMessage());
+			data = Encoding.ASCII.GetBytes(auth.SerializeTcpMessage());
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			return;
@@ -277,7 +283,7 @@ public class Tcp : Client {
 				DisplayName = DisplayName
 			};
 				
-			data = Encoding.ASCII.GetBytes(join.CreateTcpMessage());
+			data = Encoding.ASCII.GetBytes(join.SerializeTcpMessage());
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			return;
