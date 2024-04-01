@@ -45,8 +45,7 @@ public class Tcp : Client {
 				
 				int bytesRead = stream.Read(data, 0, data.Length);
 				if (bytesRead > 0) {
-					string receivedMessage = Encoding.ASCII.GetString(data, 0, bytesRead);
-					ProcessMessage(receivedMessage);
+					ProcessMessage(data, bytesRead);
 				}
 			}
 		} catch (Exception e) {
@@ -54,7 +53,8 @@ public class Tcp : Client {
 		}
 	}
 
-	protected override void ProcessMessage(string message) {
+	protected override void ProcessMessage(byte[] data, int dataLength) {
+		string message = Encoding.ASCII.GetString(data, 0, dataLength);
 		// Identify the message type and create a message object
 		switch (message[0]) {
 			case 'B': case 'b':
