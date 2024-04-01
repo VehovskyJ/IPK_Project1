@@ -4,7 +4,7 @@ using IPK_Project1.Enums;
 namespace IPK_Project1.Messages;
 
 public class Confirm : Message {
-	public required ushort RefMessageId { get; set; }
+	public ushort RefMessageId { get; set; }
 
 	public Confirm() { }
 

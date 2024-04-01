@@ -15,8 +15,9 @@ static class Program {
 				Tcp tcp = new Tcp();
 				RunClient(tcp, cli);
 			} else {
-				Udp udp = new Udp();
-				RunClient(udp, cli);
+				Error.Print("UDP is currently not supported.");
+				// Udp udp = new Udp();
+				// RunClient(udp, cli);
 			}
 		} catch (Exception e) {
 			Error.Print(e.Message);
