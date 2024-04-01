@@ -5,7 +5,7 @@ using IPK_Project1.Interfaces;
 
 namespace IPK_Project1.Messages;
 
-public abstract class Message : ISerializeMessage, IDeserializeMessage {
+public abstract class Message {
 	public MessageType Type { get; set; }
 	public ushort MessageId { get; set; }
 
@@ -15,11 +15,6 @@ public abstract class Message : ISerializeMessage, IDeserializeMessage {
 		Type = type;
 		MessageId = messageId;
 	}
-
-	public abstract string CreateTcpMessage();
-	public abstract byte[] CreateUdpMessage();
-	public abstract void DeserializeTcpMessage(string message);
-	public abstract void DeserializeUdpMessage(byte[] message);
 
 	// The following methods check the input for invalid characters or length
 	protected static bool CheckMessageContents(string value) {

@@ -2,10 +2,11 @@ using System;
 using System.Text;
 using System.Text.RegularExpressions;
 using IPK_Project1.Enums;
+using IPK_Project1.Interfaces;
 
 namespace IPK_Project1.Messages;
 
-public class Msg : Message {
+public class Msg : Message, IDeserializeUdpMessage, IDeserializeTcpMessage, ISerializeTcpMessage, ISerializeUdpMessage {
 	private string _displayName = string.Empty;
 	private string _messageContents = string.Empty;
 
@@ -48,42 +49,40 @@ public class Msg : Message {
 		Console.WriteLine($"{DisplayName}: {MessageContents}");
 	}
 
-	public override string CreateTcpMessage() {
-        if (string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(MessageContents)) {
-        	throw new ArgumentException("DisplayName or MessageContents is empty, cannot send TCP message.");
-        }
+	// Check if all required attributes are set
+	protected void ValidateMessage() {
+		if (string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(MessageContents)) {
+			throw new ArgumentException("DisplayName or MessageContents is empty, cannot send TCP message.");
+		}
+	}
+	
+	public string SerializeTcpMessage() {
+        ValidateMessage();
         
 		// MSG FROM {DisplayName} IS {MessageContent}\r\n
 		return $"MSG FROM {DisplayName} IS {MessageContents}\r\n";
 	}
 
-	public override byte[] CreateUdpMessage() {
+	public byte[] SerializeUdpMessage() {
 		//   1 byte       2 bytes
 		// +--------+--------+--------+-------~~------+---+--------~~---------+---+
 		// |  0x04  |    MessageID    |  DisplayName  | 0 |  MessageContents  | 0 |
 		// +--------+--------+--------+-------~~------+---+--------~~---------+---+
-		if (string.IsNullOrEmpty(DisplayName) || string.IsNullOrEmpty(MessageContents)) {
-			throw new ArgumentException("DisplayName or MessageContents is empty, cannot send TCP message.");
-		}
-		
-		byte[] messageIdBytes = BitConverter.GetBytes(MessageId);
-		byte[] displayNameBytes = Encoding.ASCII.GetBytes(DisplayName);
-		byte[] messageContentsBytes = Encoding.ASCII.GetBytes(MessageContents);
-		byte[] zeroByte = new byte[1];
-		
-		byte[] udpMessage = new byte[1 + messageIdBytes.Length + displayNameBytes.Length + 1 + messageContentsBytes.Length + 1];
-		udpMessage[0] = (byte)MessageType.Msg;
-		
-		Buffer.BlockCopy(messageIdBytes, 0, udpMessage, 1, messageIdBytes.Length);
-		Buffer.BlockCopy(displayNameBytes, 0, udpMessage, 3, displayNameBytes.Length);
-		Buffer.BlockCopy(zeroByte, 0, udpMessage, 3 + displayNameBytes.Length, zeroByte.Length);
-		Buffer.BlockCopy(messageContentsBytes, 0, udpMessage, 4 + displayNameBytes.Length, messageContentsBytes.Length);
-		Buffer.BlockCopy(zeroByte, 0, udpMessage, 4 + displayNameBytes.Length + messageContentsBytes.Length, zeroByte.Length);
+		ValidateMessage();
 
-		return udpMessage;
+		var udpMessage = new List<byte>();
+		
+		udpMessage.Add((byte)MessageType.Msg);
+		udpMessage.AddRange(BitConverter.GetBytes(MessageId));
+		udpMessage.AddRange(Encoding.ASCII.GetBytes(DisplayName));
+		udpMessage.AddRange(new byte[1]);
+		udpMessage.AddRange(Encoding.ASCII.GetBytes(MessageContents));
+		udpMessage.AddRange(new byte[1]);
+		
+		return udpMessage.ToArray();
 	}
 
-	public override void DeserializeTcpMessage(string message) {
+	public void DeserializeTcpMessage(string message) {
 		// MSG FROM {DisplayName} IS {MessageContent}\r\n
 		const string pattern = @"^MSG FROM (?<DisplayName>\S+) IS (?<MessageContent>.+)(\r\n)$";
 		var match = Regex.Match(message, pattern, RegexOptions.IgnoreCase);
@@ -97,7 +96,7 @@ public class Msg : Message {
 		MessageContents = match.Groups["MessageContent"].Value;
 	}
 
-	public override void DeserializeUdpMessage(byte[] message) {
+	public void DeserializeUdpMessage(byte[] message) {
 		if (message == null || message.Length < 7) {
 			throw new ArgumentException("Invalid message format");
 		}
@@ -109,21 +108,21 @@ public class Msg : Message {
 			throw new ArgumentException("Invalid message type");
 		}
 
-		// Find start and end of the display name
+		// Find start and end of the DisplayName
 		int displayNameStart = 3;
 		int displayNameEnd = Array.IndexOf(message, (byte)0, displayNameStart);
 		if (displayNameEnd < 0) {
 			throw new ArgumentException("Invalid message format");
 		}
 		
-		// Find start and end of the message contents
+		// Find start and end of the MessageContents
 		int messageContentsStart = displayNameEnd + 1;
 		int messageContentsEnd = Array.IndexOf(message, (byte)0, messageContentsStart);
 		if (messageContentsEnd < 0) {
 			throw new ArgumentException("Invalid message format");
 		}
 		
-		// Extract the information
+		// Extract DisplayName and MessageContents
 		string displayName = Encoding.ASCII.GetString(message, displayNameStart, displayNameEnd - displayNameStart);
 		string messageContents = Encoding.ASCII.GetString(message, messageContentsStart, messageContentsEnd - messageContentsStart);
 

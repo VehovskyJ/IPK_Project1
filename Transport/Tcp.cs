@@ -167,7 +167,7 @@ public class Tcp : Client {
 			DisplayName = DisplayName,
 			MessageContents = error
 		};
-		data = Encoding.ASCII.GetBytes(err.CreateTcpMessage());
+		data = Encoding.ASCII.GetBytes(err.SerializeTcpMessage());
 		stream.Write(data, 0, data.Length);
 		
 		data = Encoding.ASCII.GetBytes(bye.CreateTcpMessage());
@@ -214,7 +214,7 @@ public class Tcp : Client {
 				MessageContents = message
 			};
 			
-			data = Encoding.ASCII.GetBytes(msg.CreateTcpMessage());
+			data = Encoding.ASCII.GetBytes(msg.SerializeTcpMessage());
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			return;
@@ -241,7 +241,7 @@ public class Tcp : Client {
 				Username = ac.Username
 			};
 				
-			data = Encoding.ASCII.GetBytes(auth.CreateTcpMessage());
+			data = Encoding.ASCII.GetBytes(auth.SerializeTcpMessage());
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			return;
@@ -274,7 +274,7 @@ public class Tcp : Client {
 				DisplayName = DisplayName
 			};
 				
-			data = Encoding.ASCII.GetBytes(join.CreateTcpMessage());
+			data = Encoding.ASCII.GetBytes(join.SerializeTcpMessage());
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			return;
