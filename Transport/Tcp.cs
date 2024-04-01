@@ -11,10 +11,11 @@ public class Tcp : Client {
 	private TcpClient _client = new();
 	private bool _closed;
 	
-	public override void Run(string server, ushort port) {
+	public override void Run(Cli cli) {
 		try {
 			// Connect to the server
-			_client.Connect(server, port);
+			// Null pointer reference is checked multiple times before calling Run
+			_client.Connect(cli.ServerAddress!, cli.ServerPort);
 		} catch (Exception e) {
 			Error.Print($"Error connecting to the server: {e.Message}");
 			return;

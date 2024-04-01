@@ -36,7 +36,7 @@ public abstract class Client {
 	}
 	
 	// Run the client
-	public abstract void Run(string server, ushort port);
+	public abstract void Run(Cli cli);
 
 	// Close the connection
 	public abstract void Close();

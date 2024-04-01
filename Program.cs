@@ -15,7 +15,8 @@ static class Program {
 				Tcp tcp = new Tcp();
 				RunClient(tcp, cli);
 			} else {
-				// TODO: implement udp
+				Udp udp = new Udp();
+				RunClient(udp, cli);
 			}
 		} catch (Exception e) {
 			Error.Print(e.Message);
@@ -31,7 +32,7 @@ static class Program {
 
 		// Run the client
 		try {
-			client.Run(cli.ServerAddress, cli.ServerPort);
+			client.Run(cli);
 		} catch (Exception e) {
 			Error.Print(e.Message);
 			Environment.Exit(1);
