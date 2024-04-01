@@ -70,6 +70,7 @@ public class Tcp : Client {
 
 	protected override void ProcessMessage(byte[] data, int dataLength) {
 		string message = Encoding.ASCII.GetString(data, 0, dataLength);
+		NetworkStream stream = _client.GetStream();
 		// Identify the message type and create a message object
 		switch (message[0]) {
 			case 'B': case 'b':
@@ -84,7 +85,8 @@ public class Tcp : Client {
 				}
 				
 				// Recycling :)
-				SendData(receiveBye.CreateTcpMessage());
+				data = Encoding.ASCII.GetBytes(receiveBye.CreateTcpMessage());
+				stream.Write(data, 0, data.Length);
 				Environment.Exit(0);
 				break;
 			case 'E': case 'e':
@@ -98,7 +100,8 @@ public class Tcp : Client {
 				// Print out the error message and close the connection
 				receiveErr.PrintMessage();
 				Bye bye = new Bye();
-				SendData(bye.CreateTcpMessage());
+				data = Encoding.ASCII.GetBytes(bye.CreateTcpMessage());
+				stream.Write(data, 0, data.Length);
 				Environment.Exit(0);
 				break;
 			case 'M': case 'm':
