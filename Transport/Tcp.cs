@@ -36,6 +36,7 @@ public class Tcp : Client {
 			// Read byte stream from the server
 			NetworkStream stream = _client.GetStream();
 			byte[] data = new byte[2048];
+			int bufferOffset = 0;
 
 			while (true) {
 				// If the client is closed, stop receiving data
@@ -45,7 +46,21 @@ public class Tcp : Client {
 				
 				int bytesRead = stream.Read(data, 0, data.Length);
 				if (bytesRead > 0) {
-					ProcessMessage(data, bytesRead);
+					bufferOffset += bytesRead;
+
+					int messageEnd;
+					while ((messageEnd = Array.IndexOf(data, (byte)'\n', 0, bufferOffset)) != -1) {
+						// Extract the message from the buffer
+						byte[] messageData = new byte[messageEnd + 1];
+						Array.Copy(data, 0, messageData, 0, messageEnd + 1);
+
+						// Process the message
+						ProcessMessage(messageData, messageEnd + 1);
+						
+						// Remove the message from the buffer
+						bufferOffset -= messageEnd + 1;
+						Array.Copy(data, messageEnd + 1, data, 0, bufferOffset);
+					}
 				}
 			}
 		} catch (Exception e) {
