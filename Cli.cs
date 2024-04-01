@@ -28,8 +28,7 @@ public class Cli {
 		for (int i = 0; i < args.Length; i++) {
 			// Check if there is a value for the argument
 			if (i + 1 >= args.Length) {
-				Error.Print("Missing value for argument.");
-				Environment.Exit(1);
+				throw new ArgumentException("Missing value for an argument.");
 			}
 
 			switch (args[i]) {
@@ -42,44 +41,32 @@ public class Cli {
 							TransportProtocol = TransportProtocol.Udp;
 							break;
 						default:
-							Error.Print("Missing value for argument.");
-							Environment.Exit(1);
-							break;
+							throw new ArgumentException("Missing value for transport protocol.");
 					}
-
 					break;
 				case "-s":
 					ServerAddress = args[++i];
 					break;
 				case "-p":
-					try {
-						ServerPort = ushort.Parse(args[++i]);
-					} catch (FormatException) {
-						Error.Print("Invalid format for server port.");
-						Environment.Exit(1);
-					} catch (OverflowException) {
-						Error.Print("Server port must be between 0 and 65535.");
-						Environment.Exit(1);
+					if (!ushort.TryParse(args[++i], out ushort port) || port == 0) {
+						throw new ArgumentException("Invalid value for server port.");
 					}
 
+					ServerPort = port;
 					break;
 				case "-d":
-					try {
-						UdpTimeout = ushort.Parse(args[++i]);
-					} catch (Exception) {
-						Error.Print("Invalid input for UDP timeout.");
-						Environment.Exit(1);
+					if (!ushort.TryParse(args[++i], out ushort timeout)) {
+						throw new ArgumentException("Invalid value for UDP timeout.");
 					}
 
+					UdpTimeout = timeout;
 					break;
 				case "-r":
-					try {
-						MaxRetransmissions = byte.Parse(args[++i]);
-					} catch (Exception) {
-						Error.Print("Invalid input for UDP retransmissions.");
-						Environment.Exit(1);
+					if (!byte.TryParse(args[++i], out byte retransmissions)) {
+						throw new ArgumentException("Invalid value for UDP retransmissions.");
 					}
 
+					MaxRetransmissions = retransmissions;
 					break;
 				default:
 					Help();
@@ -89,9 +76,12 @@ public class Cli {
 		}
 
 		// Check if all required arguments are set
-		if (string.IsNullOrEmpty(ServerAddress) || TransportProtocol == TransportProtocol.None) {
-			Error.Print("Missing required arguments.");
-			Environment.Exit(1);
+		if (string.IsNullOrEmpty(ServerAddress)) {
+			throw new ArgumentException("Please provide a server address.");
+		}
+
+		if (TransportProtocol == TransportProtocol.None) {
+			throw new ArgumentException("Please select a transport protocol.");
 		}
 	}
 
